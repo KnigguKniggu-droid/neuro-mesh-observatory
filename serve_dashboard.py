@@ -3,6 +3,8 @@
 The server binds to 127.0.0.1 by default, serves the static dashboard, exposes 
 read-only telemetry/PPA endpoints, and can launch test_ucie_stress.py with validated limits. 
 It uses only the Python standard library plus the existing VCD parser in plot_ucie_waveforms.py.
+
+Cloud deployment: Set PORT env var (Render sets this automatically) and host to 0.0.0.0.
 """
 
 from __future__ import annotations
@@ -11,6 +13,7 @@ import argparse
 import asyncio
 import json
 import mimetypes
+import os
 import queue
 import subprocess
 import sys
@@ -674,8 +677,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8765")))
     parser.add_argument("--open", action="store_true", help="open the dashboard in the default browser")
     parser.add_argument("--snapshot-only", action="store_true", help="refresh dashboard/data/snapshot.json and exit")
     return parser.parse_args()
