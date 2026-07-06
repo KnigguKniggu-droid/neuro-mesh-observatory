@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>J.A.R.V.I.S — Demo</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JARVIS">
+<meta name="theme-color" content="#050b14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050b14; --panel:#081523cc; --line:#0e2c40;
+  --cyan:#00e5ff; --cyan-dim:#0a7f96; --teal:#19f0d8;
+  --amber:#ffb300; --red:#ff4d5e; --txt:#9fd8e8; --txt-dim:#4d7d92;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:radial-gradient(ellipse at 50% 38%, #0a1a2c 0%, var(--bg) 65%);
+  color:var(--txt); font-family:'Rajdhani',sans-serif; overflow:hidden;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9;
+  background:repeating-linear-gradient(0deg, transparent 0 2px, #00e5ff05 2px 4px);
+}
+#grid{
+  display:grid; grid-template-columns:320px 1fr 320px;
+  grid-template-rows:54px 1fr 26px; height:100vh; gap:8px; padding:8px;
+}
+header{
+  grid-column:1/4; display:flex; align-items:center; justify-content:space-between;
+  border:1px solid var(--line); background:var(--panel); padding:0 18px;
+  clip-path:polygon(0 0,100% 0,100% 70%,calc(100% - 16px) 100%,16px 100%,0 70%);
+}
+header h1{font-family:'Orbitron'; font-size:19px; letter-spacing:8px; color:var(--cyan); text-shadow:0 0 12px #00e5ff88}
+header .sub{font-size:12px; letter-spacing:3px; color:var(--txt-dim)}
+#clock{font-family:'Orbitron'; font-size:15px; letter-spacing:2px; color:var(--teal)}
+.col{display:flex; flex-direction:column; gap:8px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--line) transparent}
+.panel{
+  border:1px solid var(--line); background:var(--panel); padding:10px 12px; position:relative;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+}
+.panel h2{
+  font-family:'Orbitron'; font-size:10px; letter-spacing:3px; color:var(--cyan);
+  border-bottom:1px solid var(--line); padding-bottom:5px; margin-bottom:7px;
+  display:flex; justify-content:space-between;
+}
+.panel h2 .num{color:var(--txt-dim)}
+.kv{display:flex; justify-content:space-between; font-size:13px; padding:1.5px 0}
+.kv b{color:var(--teal); font-weight:600; text-align:right; max-width:60%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ok{color:var(--teal)} .warn{color:var(--amber)} .err{color:var(--red)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:var(--txt-dim)}
+.dot.on{background:var(--teal); box-shadow:0 0 6px var(--teal)}
+.dot.off{background:var(--red); box-shadow:0 0 6px var(--red)}
+#center{display:flex; flex-direction:column; align-items:center; justify-content:flex-start; position:relative; overflow:hidden}
+#reactorWrap{position:relative; width:min(46vh,440px); height:min(46vh,440px); cursor:pointer; flex-shrink:0}
+#reactor{width:100%; height:100%}
+#coreState{
+  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  pointer-events:none; font-family:'Orbitron';
+}
+#coreState .st{font-size:15px; letter-spacing:6px; color:var(--cyan); text-shadow:0 0 14px #00e5ffaa}
+#coreState .hint{font-size:9px; letter-spacing:2px; color:var(--txt-dim); margin-top:6px}
+#feed{
+  width:100%; max-width:680px; flex:1; overflow-y:auto; margin-top:4px; padding:0 10px;
+  display:flex; flex-direction:column; gap:6px; scrollbar-width:thin;
+}
+.msg{font-size:14.5px; line-height:1.35; padding:7px 11px; border:1px solid var(--line); background:#08152399; max-width:88%}
+.msg.you{align-self:flex-end; border-color:#205a6e; color:#cfeefb}
+.msg.jarvis{align-self:flex-start; border-left:2px solid var(--cyan)}
+.msg.sys{align-self:center; color:var(--txt-dim); font-size:12px; border:none; background:none; padding:2px}
+#chatRow{display:flex; gap:8px; width:100%; max-width:680px; padding:8px 10px}
+#chatInput{
+  flex:1; background:#06101c; border:1px solid var(--line); color:#cfeefb; padding:9px 12px;
+  font-family:'Rajdhani'; font-size:15px; outline:none;
+}
+#chatInput:focus{border-color:var(--cyan-dim); box-shadow:0 0 8px #00e5ff33}
+button.btn{
+  background:#0a2435; color:var(--cyan); border:1px solid var(--cyan-dim); padding:9px 16px;
+  font-family:'Orbitron'; font-size:11px; letter-spacing:2px; cursor:pointer;
+  transition:all 0.18s;
+}
+button.btn:hover{background:#0e3349; box-shadow:0 0 10px #00e5ff44}
+button.btn.danger{color:var(--red); border-color:#7a2a33; background:#240a0e}
+button.btn.danger:hover{background:#3a0e15; box-shadow:0 0 10px #ff4d5e55}
+button.btn.amber{color:var(--amber); border-color:#7a5a1a; background:#241c0a}
+button.btn.amber:hover{background:#3a1a08; box-shadow:0 0 10px #ffb30055}
+/* viewer popup */
+#viewer{position:fixed; inset:0; z-index:40; display:none; align-items:center; justify-content:center;
+  background:#02060cd9; backdrop-filter:blur(4px)}
+#viewer.open{display:flex}
+#viewerBox{width:90%; height:90%; position:relative; background:#050b14;
+  border:1px solid var(--cyan-dim); box-shadow:0 0 60px #00e5ff2e, inset 0 0 40px #00e5ff08;
+  animation:viewIn .32s cubic-bezier(.2,.9,.3,1.2);
+  clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,22px 100%,0 calc(100% - 22px))}
+@keyframes viewIn{from{transform:scale(.88) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+#viewerBar{display:flex; align-items:center; justify-content:space-between; height:40px;
+  padding:0 14px; border-bottom:1px solid var(--line); background:#081523}
+#viewerBar h3{font-family:'Orbitron'; font-size:12px; letter-spacing:4px; color:var(--cyan); text-shadow:0 0 10px #00e5ff66}
+#viewerIframe{width:100%; height:calc(100% - 40px); border:0; background:#0a1420}
+.viewBtn{display:block; width:100%; text-align:left; margin-bottom:6px}
+footer{
+  grid-column:1/4; display:flex; align-items:center; justify-content:space-between;
+  font-size:11px; letter-spacing:2px; color:var(--txt-dim); padding:0 14px;
+}
+.bar{height:3px; background:#0a2435; margin-top:3px}
+.bar i{display:block; height:100%; background:linear-gradient(90deg,var(--cyan-dim),var(--cyan)); width:0%; transition:width .4s}
+/* boot sequence */
+#boot{position:fixed; inset:0; z-index:100; background:#020509; display:flex;
+  flex-direction:column; align-items:center; justify-content:center; transition:opacity .7s}
+#boot.done{opacity:0; pointer-events:none}
+#boot::after{content:""; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(0deg, transparent 0 3px, #00e5ff06 3px 6px)}
+#bootLogo{font-family:'Orbitron'; font-size:clamp(22px,5vw,38px); letter-spacing:14px;
+  color:var(--cyan); text-shadow:0 0 34px #00e5ff99; animation:bootPulse 1.4s ease-in-out infinite}
+#bootSub{font-size:11px; letter-spacing:6px; color:var(--txt-dim); margin-top:10px}
+#bootLines{margin-top:30px; font-size:13px; letter-spacing:2px; color:var(--txt-dim);
+  width:min(360px,80vw); min-height:140px; font-family:'Rajdhani'}
+#bootLines div{opacity:0; animation:lineIn .2s forwards; padding:2px 0}
+#bootLines div b{color:var(--teal); float:right}
+@keyframes lineIn{to{opacity:1}}
+@keyframes bootPulse{50%{opacity:.5}}
+/* holographic */
+#holoStage{position:fixed; inset:0; z-index:38; pointer-events:none; perspective:1200px; transform-style:preserve-3d; overflow:hidden}
+#grid{transition:transform .45s ease, filter .45s ease}
+#grid.dolly{transform:scale(1.02); filter:brightness(.7)}
+.holo{position:absolute; pointer-events:auto; transform-style:preserve-3d;
+  --enterRotY:-20deg; --bankX:0px;
+  width:min(62vw,900px); height:min(58vh,540px);
+  left:50%; top:45%; translate:-50% -50%;
+  background:#081523f2; border:1px solid var(--cyan-dim);
+  box-shadow:0 0 40px #00e5ff33, inset 0 0 60px #00e5ff0a;
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));
+  animation:holoApproach .65s cubic-bezier(.34,1.56,.64,1) both}
+.holo.pos-left{left:19%; --enterRotY:38deg; --bankX:-55vw; width:min(31vw,480px); height:min(40vh,380px)}
+.holo.pos-right{left:81%; --enterRotY:-38deg; --bankX:55vw; width:min(31vw,480px); height:min(40vh,380px)}
+@keyframes holoApproach{
+  0%{opacity:0; filter:blur(10px) brightness(2.2);
+     transform:translateX(var(--bankX)) translateZ(-800px) rotateX(35deg) rotateY(var(--enterRotY)) scale(.3)}
+  55%{opacity:.85; filter:blur(2px) brightness(1.45);
+     transform:translateX(calc(var(--bankX)*.15)) translateZ(-160px) rotateX(8deg) rotateY(calc(var(--enterRotY)*.35)) scale(.92)}
+  100%{opacity:1; filter:none; transform:translateX(0) translateZ(0) rotateX(0) rotateY(0) scale(1)}}
+.holo.idle{animation:holoIdle 4s ease-in-out infinite}
+@keyframes holoIdle{
+  0%,100%{transform:translateY(0); box-shadow:0 0 40px #00e5ff33, inset 0 0 60px #00e5ff0a}
+  50%{transform:translateY(-3px); box-shadow:0 0 54px #00e5ff4d, inset 0 0 60px #00e5ff14}}
+.holo.dismiss{animation:holoDismiss .6s cubic-bezier(.55,0,.85,.36) both}
+@keyframes holoDismiss{
+  0%{opacity:1; transform:none; filter:none}
+  35%{opacity:.9; filter:blur(1px) brightness(1.5)}
+  100%{opacity:0; filter:blur(14px);
+    transform:translateX(calc(var(--bankX)*-.3)) translateZ(-900px) rotateX(-25deg) rotateY(calc(var(--enterRotY)*-1)) scale(.25)}}
+.holoFrame{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+.holoFrame rect{fill:none; stroke:var(--cyan); stroke-width:1.5; opacity:.9;
+  stroke-dasharray:100; stroke-dashoffset:100; animation:holoTrace .5s linear .15s forwards}
+@keyframes holoTrace{to{stroke-dashoffset:0}}
+.holoFrame path{fill:none; stroke:var(--cyan); stroke-width:2.5; opacity:0;
+  filter:drop-shadow(0 0 5px var(--cyan)); animation:holoCorner .12s steps(2) .55s forwards}
+@keyframes holoCorner{to{opacity:1}}
+.holoBar{position:absolute; top:0; left:0; right:0; height:30px; z-index:3; display:flex;
+  align-items:center; justify-content:space-between; padding:0 12px;
+  border-bottom:1px solid var(--line); background:#08152399;
+  font-family:'Orbitron'; font-size:10px; letter-spacing:3px; color:var(--cyan)}
+.holoBar .hx{cursor:pointer; color:var(--red); font-size:13px; padding:0 4px}
+.holoContentWrap{position:absolute; inset:30px 8px 8px 8px; opacity:0;
+  animation:holoBodyIn .3s steps(3) .35s forwards; overflow:hidden; background:#050b14}
+@keyframes holoBodyIn{0%{opacity:0}45%{opacity:.35}70%{opacity:.85}100%{opacity:1}}
+.holoContent{width:100%; height:100%; border:0; object-fit:contain; background:#050b14}
+.holoHex{position:absolute; inset:30px 8px 8px 8px; pointer-events:none; opacity:.5;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='32'%3E%3Cpath d='M14 1 27 8.5v15L14 31 1 23.5v-15z' fill='none' stroke='%2300e5ff' stroke-opacity='.3'/%3E%3C/svg%3E");
+  animation:holoHexOut .4s ease .65s forwards}
+@keyframes holoHexOut{to{opacity:0}}
+.holoScan{position:absolute; inset:30px 8px 8px 8px; pointer-events:none; z-index:2; opacity:0;
+  background:linear-gradient(180deg, transparent 0%, #00e5ff22 44%, #00e5ffbb 50%, #00e5ff22 56%, transparent 100%);
+  background-size:100% 300%; animation:holoScanSweep .42s linear .33s}
+@keyframes holoScanSweep{0%{opacity:1; background-position:0 -100%}100%{opacity:0; background-position:0 200%}}
+.holoChroma{position:absolute; inset:0; pointer-events:none; z-index:2; mix-blend-mode:screen;
+  opacity:0; animation:holoChromaFlick .38s steps(4) .35s}
+.holoChroma.c1{box-shadow:inset 0 0 0 2px #ff00ff66; transform:translateX(2px)}
+.holoChroma.c2{box-shadow:inset 0 0 0 2px #00ffff66; transform:translateX(-2px)}
+@keyframes holoChromaFlick{0%{opacity:.85}60%{opacity:.4}100%{opacity:0}}
+.holoBoot{position:absolute; right:12px; bottom:8px; z-index:3; pointer-events:none;
+  font-family:monospace; font-size:9px; line-height:1.3; color:var(--teal);
+  text-align:right; opacity:.85; transition:opacity .6s}
+#activity{max-height:150px; overflow-y:auto; font-size:12.5px}
+#activity div{padding:2px 0; color:var(--txt-dim)}
+#activity div b{color:var(--amber)}
+#skillsList,#jobsList{max-height:130px; overflow-y:auto; font-size:12.5px}
+#skillsList div,#jobsList div{padding:1.5px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+@media (max-width:880px){
+  .holo,.holo.pos-left,.holo.pos-right{width:94vw; height:50vh; left:50%}
+  body{overflow-y:auto; overflow-x:hidden}
+  #grid{display:flex; flex-direction:column; height:auto; min-height:100dvh; gap:8px}
+  header{position:sticky; top:0; z-index:15; flex-shrink:0}
+  header h1{font-size:15px; letter-spacing:4px}
+  header .sub{display:none}
+  #clock{font-size:12px}
+  #center{order:1; min-height:0}
+  #reactorWrap{width:min(62vw,260px); height:min(62vw,260px)}
+  #coreState .st{font-size:12px; letter-spacing:4px}
+  #coreState .hint{font-size:8px}
+  #feed{max-height:34dvh; min-height:90px}
+  .col{order:2; overflow:visible; flex-shrink:0}
+  .col:last-of-type{order:3}
+  footer{order:4; flex-shrink:0; padding:6px 14px}
+  #viewerBox{width:97%; height:94%}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ BOOT SEQUENCE ═══ -->
+<div id="boot">
+  <div id="bootLogo">J.A.R.V.I.S</div>
+  <div id="bootSub">HERMES NEURAL INTERFACE — DEMO MODE</div>
+  <div id="bootLines"></div>
+</div>
+
+<div id="grid">
+  <header>
+    <h1>J.A.R.V.I.S</h1>
+    <div class="sub">DEMO MODE &nbsp;//&nbsp; <span id="connState">LOCAL</span></div>
+    <div id="clock">--:--:--</div>
+  </header>
+
+  <!-- LEFT COLUMN -->
+  <div class="col">
+    <div class="panel"><h2><span>VOICE LINK</span><span class="num">01</span></h2>
+      <div class="kv"><span><span class="dot on" id="wsDot"></span>Socket</span><b id="wsState">demo</b></div>
+      <div class="kv"><span><span class="dot on" id="micDot"></span>Microphone</span><b id="micState">demo</b></div>
+      <div class="kv"><span>Input level</span><b>&nbsp;</b></div>
+      <div class="bar"><i id="levelBar" style="width:67%"></i></div>
+      <div style="margin-top:8px; display:flex; gap:6px">
+        <button class="btn" id="talkBtn" style="flex:1" onclick="demoSimulate()">⚡ DEMO TALK</button>
+        <button class="btn danger" id="stopBtn" style="display:none">■ STOP</button>
+      </div>
+    </div>
+    <div class="panel"><h2><span>AGENT ACTIVITY</span><span class="num">02</span></h2>
+      <div id="activity"><div>— awaiting activation —</div></div>
+    </div>
+    <div class="panel"><h2><span>TURN METRICS</span><span class="num">03</span></h2>
+      <div class="kv"><span>Turns</span><b id="mTurns">3</b></div>
+      <div class="kv"><span>Last: speech→audio</span><b id="mFirst">0.8s</b></div>
+      <div class="kv"><span>Last: total</span><b id="mTotal">3.2s</b></div>
+      <div class="kv"><span>Brain</span><b id="mBrain">hermes-agent</b></div>
+    </div>
+    <div class="panel"><h2><span>VIEWS</span><span class="num">04</span></h2>
+      <button class="btn viewBtn" onclick="openView('SYSTEM INFO','about:blank')">▸ SYSTEM INFO</button>
+      <button class="btn viewBtn" onclick="openView('CAPABILITIES','about:blank')">▸ CAPABILITIES</button>
+      <button class="btn viewBtn" onclick="openView('SETTINGS','about:blank')">▸ SETTINGS</button>
+    </div>
+    <div class="panel"><h2><span>SESSION</span><span class="num">05</span></h2>
+      <div class="kv"><span>Conversation</span><b>jarvis-demo</b></div>
+      <div class="kv"><span>Memory scope</span><b>jarvis:demo:local</b></div>
+      <div class="kv"><span>Active sessions</span><b id="hSessions">1</b></div>
+      <div class="kv"><span>Running agents</span><b id="hAgents">0</b></div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div id="center">
+    <div id="reactorWrap" title="Click for demo">
+      <canvas id="reactor"></canvas>
+      <div id="coreState"><div class="st" id="stateLabel">STANDBY</div><div class="hint" id="stateHint">CLICK RING FOR DEMO</div></div>
+    </div>
+    <div id="feed"></div>
+    <div id="chatRow">
+      <input id="chatInput" placeholder="Type a demo message…" autocomplete="off">
+      <button class="btn" id="sendBtn">SEND</button>
+      <button class="btn" id="clearBtn" title="Clear chat">CLR</button>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="col">
+    <div class="panel"><h2><span>MODELS LOADOUT</span><span class="num">06</span></h2>
+      <div class="kv"><span>Brain</span><b>hermes-agent</b></div>
+      <div class="kv"><span>STT</span><b>whisper base.en</b></div>
+      <div class="kv"><span>TTS</span><b>ElevenLabs Flash v2.5</b></div>
+      <div class="kv"><span>Fallback</span><b>claude-haiku-4-5</b></div>
+      <div style="border-top:1px solid var(--line); margin:6px 0 4px"></div>
+      <div class="kv"><span>Tokens today</span><b id="uTok">12.4k in / 8.2k out</b></div>
+      <div class="kv"><span>Turns today</span><b id="uTurns">3</b></div>
+      <div class="kv"><span>11Labs quota</span><b id="uTts">2.1k / 10k (79% left)</b></div>
+      <div class="bar"><i id="ttsBar" style="width:21%"></i></div>
+    </div>
+    <div class="panel"><h2><span>MACHINES</span><span class="num">07</span></h2>
+      <div id="machinesList">
+        <div class="kv"><span><span class="dot on"></span>localhost</span><b>CPU 14% · MEM 38%</b></div>
+        <div class="kv"><span><span class="dot off"></span>gpu-worker</span><b>offline</b></div>
+      </div>
+    </div>
+    <div class="panel"><h2><span>SKILLS</span><span class="num">08</span></h2>
+      <div class="kv"><span>Loaded skills</span><b id="skillCount">82</b></div>
+      <div id="skillsList">
+        <div>▸ file_operations</div><div>▸ web_search</div><div>▸ terminal_access</div>
+        <div>▸ code_execution</div><div>▸ memory_query</div><div>▸ hud_display</div>
+        <div>▸ image_generation</div><div>▸ data_analysis</div>
+      </div>
+    </div>
+    <div class="panel"><h2><span>DIAGNOSTICS</span><span class="num">09</span></h2>
+      <div class="kv"><span><span class="dot on" id="apiDot"></span>Hermes API</span><b id="apiState">demo</b></div>
+      <div class="kv"><span>CPU</span><b id="hCpu">14%</b></div>
+      <div class="kv"><span>Memory</span><b id="hMem">38%</b></div>
+      <div class="kv"><span>Refreshed</span><b id="hWhen">--:--:--</b></div>
+    </div>
+    <div class="panel"><h2><span>AUTOMATIONS</span><span class="num">10</span></h2>
+      <div id="jobsList"><div>— none —</div></div>
+    </div>
+  </div>
+
+  <div id="holoStage"></div>
+
+  <div id="viewer">
+    <div id="viewerBox">
+      <div id="viewerBar">
+        <h3 id="viewerTitle">VIEWER</h3>
+        <div class="vbtns">
+          <button class="btn" id="viewerPop">OPEN TAB</button>
+          <button class="btn danger" id="viewerClose">✕ CLOSE</button>
+        </div>
+      </div>
+      <iframe id="viewerIframe" src="about:blank" title="view"></iframe>
+    </div>
+  </div>
+
+  <footer>
+    <span></span>
+    <span id="footMsg">DEMO MODE — NO SERVER REQUIRED</span>
+    <span>NOUS HERMES AGENT v0.16</span>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ══════════════════ CLOCK ══════════════════ */
+setInterval(()=>{const d=new Date();document.getElementById("clock").textContent=d.toTimeString().slice(0,8);document.getElementById("hWhen").textContent=d.toTimeString().slice(0,8)},500);
+
+/* ══════════════════ REACTOR ══════════════════ */
+const cv=document.getElementById("reactor"), ctx=cv.getContext("2d");
+function sizeCanvas(){const r=cv.parentElement.getBoundingClientRect();cv.width=r.width*devicePixelRatio;cv.height=r.height*devicePixelRatio}
+sizeCanvas(); addEventListener("resize",sizeCanvas);
+let rot=0, state="standby", level=0;
+const STATE_STYLE={
+  standby:{speed:.15,color:"#00e5ff",glow:18,pulse:0},
+  listening:{speed:.5,color:"#19f0d8",glow:30,pulse:1},
+  thinking:{speed:1.6,color:"#ffb300",glow:26,pulse:.4},
+  tool:{speed:2.4,color:"#ffb300",glow:32,pulse:.6},
+  speaking:{speed:.7,color:"#00e5ff",glow:34,pulse:.8},
+  error:{speed:.05,color:"#ff4d5e",glow:22,pulse:0},
+};
+function drawRing(cx,cy,r,w,color,alpha,dash,offset){
+  ctx.beginPath(); ctx.strokeStyle=color; ctx.globalAlpha=alpha; ctx.lineWidth=w;
+  if(dash)ctx.setLineDash(dash); else ctx.setLineDash([]);
+  ctx.lineDashOffset=offset||0;
+  ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1; ctx.setLineDash([]);
+}
+function frame(t){
+  const s=STATE_STYLE[state]||STATE_STYLE.standby;
+  rot+=s.speed;
+  const W=cv.width,H=cv.height,cx=W/2,cy=H/2,base=Math.min(W,H)*0.40;
+  ctx.clearRect(0,0,W,H);
+  ctx.shadowColor=s.color; ctx.shadowBlur=s.glow*devicePixelRatio;
+  const pulse=1+Math.sin(t/300)*0.012*(1+s.pulse*3)+(state==="listening"?level*0.10:0);
+  drawRing(cx,cy,base*pulse,2*devicePixelRatio,s.color,.9);
+  drawRing(cx,cy,base*.86,1.2*devicePixelRatio,s.color,.45,[40,18],rot*2);
+  drawRing(cx,cy,base*.72,5*devicePixelRatio,s.color,.25,[4,10],-rot*3);
+  drawRing(cx,cy,base*.58,1.5*devicePixelRatio,s.color,.6,[90,40],rot*1.2);
+  ctx.shadowBlur=0;
+  for(let i=0;i<60;i++){
+    const a=(i/60)*Math.PI*2+rot/180;
+    const r1=base*1.06,r2=base*(i%5===0?1.12:1.09);
+    ctx.beginPath(); ctx.strokeStyle=s.color; ctx.globalAlpha=i%5===0?.8:.3;
+    ctx.lineWidth=devicePixelRatio;
+    ctx.moveTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);
+    ctx.lineTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+  ctx.shadowColor=s.color; ctx.shadowBlur=40*devicePixelRatio;
+  const g=ctx.createRadialGradient(cx,cy,0,cx,cy,base*.42);
+  g.addColorStop(0,s.color+"55"); g.addColorStop(1,"transparent");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,base*.42,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+function setState(st,label,hint){
+  state=st;
+  document.getElementById("stateLabel").textContent=label;
+  if(hint!==undefined)document.getElementById("stateHint").textContent=hint;
+}
+
+/* ══════════════════ FEED ══════════════════ */
+const feed=document.getElementById("feed");
+function addMsg(cls,text){
+  const d=document.createElement("div"); d.className="msg "+cls; d.textContent=text;
+  feed.appendChild(d); feed.scrollTop=feed.scrollHeight;
+  while(feed.children.length>80)feed.removeChild(feed.firstChild);
+  return d;
+}
+function addActivity(text,toolName,preview){
+  const a=document.getElementById("activity");
+  if(a.firstChild&&a.firstChild.textContent.startsWith("—"))a.innerHTML="";
+  const d=document.createElement("div");
+  const esc=s=>String(s||"").replace(/[<>&]/g,c=({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]));
+  d.innerHTML=toolName?`▸ tool <b>${esc(toolName)}</b> <span style="opacity:.7">${esc((preview||"").slice(0,60))}</span>`:`▸ ${esc(text)}`;
+  a.prepend(d); while(a.children.length>40)a.removeChild(a.lastChild);
+}
+
+/* ══════════════════ DEMO SIMULATION ══════════════════ */
+const demoReplies=[
+  "At your service, sir. All systems are nominal.",
+  "I have analyzed the data. The neural network is operating at 94.3% efficiency.",
+  "Weather forecast for today: partly cloudy, 72°F. I've already adjusted the lab temperature.",
+  "The simulation completed in 2.4 seconds. Results are within expected parameters.",
+  "I've compiled the report. Shall I display it on the main viewer?",
+  "Memory usage is stable at 38%. No anomalies detected in the last 24 hours.",
+  "Project Stark Industries is ahead of schedule. Would you like the detailed breakdown?",
+  "I've queued three background jobs. ETA: 12 minutes."
+];
+const demoTools=[
+  ["file_operations","reading: /reports/daily_summary.json"],
+  ["web_search","query: arc reactor efficiency improvements 2026"],
+  ["terminal_access","$ htop --sort=memory"],
+  ["code_execution","python analyze_telemetry.py --window 24h"],
+  ["memory_query","recalling: project status from yesterday"],
+  ["hud_display","summoning: analytics dashboard"],
+  ["data_analysis","crunching: 14,200 data points"],
+];
+const demoImages=["image","image","image"];
+
+async function demoSimulate(){
+  document.getElementById("talkBtn").disabled=true;
+  setState("listening","LISTENING","PROCESSING DEMO INPUT…");
+  document.getElementById("levelBar").style.width="85%";
+  addActivity("voice input detected");
+  await sleep(800);
+
+  setState("thinking","PROCESSING");
+  const tool=demoTools[Math.floor(Math.random()*demoTools.length)];
+  addActivity("",tool[0],tool[1]);
+  addMsg("you","Jarvis, run a system diagnostic and give me a status update.");
+  await sleep(1200);
+
+  setState("tool","WORKING");
+  const tool2=demoTools[Math.floor(Math.random()*demoTools.length)];
+  addActivity("",tool2[0],tool2[1]);
+  await sleep(900);
+
+  setState("speaking","SPEAKING");
+  const reply=demoReplies[Math.floor(Math.random()*demoReplies.length)];
+  addMsg("jarvis",reply);
+  document.getElementById("levelBar").style.width="60%";
+  document.getElementById("mTurns").textContent=parseInt(document.getElementById("mTurns").textContent)+1;
+  document.getElementById("mFirst").textContent=(Math.random()*1.2+0.4).toFixed(1)+"s";
+  document.getElementById("mTotal").textContent=(Math.random()*2+2).toFixed(1)+"s";
+  await sleep(1500);
+
+  setState("standby","STANDBY","CLICK RING FOR DEMO");
+  document.getElementById("levelBar").style.width="30%";
+  document.getElementById("talkBtn").disabled=false;
+}
+
+/* ══════════════════ VIEWER ══════════════════ */
+function openView(name,path){
+  document.getElementById("viewerTitle").textContent=name;
+  document.getElementById("viewerIframe").src=path||"about:blank";
+  if(!path||path==="about:blank"){
+    const iframe=document.getElementById("viewerIframe");
+    try {
+      const doc=iframe.contentDocument||iframe.contentWindow.document;
+      doc.open();
+      doc.write('<!DOCTYPE html><html><body style="background:#050b14;color:#9fd8e8;font-family:Rajdhani,sans-serif;padding:40px;text-align:center;font-size:18px;">'
+        +'<h2 style="font-family:Orbitron;color:#00e5ff;letter-spacing:4px;margin-bottom:20px;">◈ '+name.replace(/[<>"'&]/g,'')+'</h2>'
+        +'<p style="color:#4d7d92;">This is a standalone demo. Connect to a live Hermes Agent server for full functionality.</p>'
+        +'<p style="color:#4d7d92;margin-top:10px;">Voice pipeline · Live transcription · Agent tool calls · Holographic media · ElevenLabs TTS</p>'
+        +'</body></html>');
+      doc.close();
+    } catch(ex) { /* iframe not ready yet */ }
+  }
+  document.getElementById("viewer").classList.add("open");
+}
+function closeView(){
+  document.getElementById("viewer").classList.remove("open");
+  document.getElementById("viewerIframe").src="about:blank";
+}
+document.getElementById("viewerClose").onclick=closeView;
+document.getElementById("viewerPop").onclick=()=>{window.open(document.getElementById("viewerIframe").src,"_blank");closeView()};
+document.getElementById("viewer").addEventListener("click",e=>{if(e.target.id==="viewer")closeView()});
+addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    if(document.querySelector(".holo:not(.dismiss)"))dismissAllPanels();
+    else if(document.getElementById("viewer").classList.contains("open"))closeView();
+  }
+});
+
+/* ══════════════════ TYPED CHAT (demo) ══════════════════ */
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function sendChat(){
+  const inp=document.getElementById("chatInput"); const text=inp.value.trim(); if(!text)return;
+  inp.value=""; addMsg("you",text); setState("thinking","PROCESSING");
+  addActivity("processing typed input");
+  await sleep(1000);
+  const reply=demoReplies[Math.floor(Math.random()*demoReplies.length)];
+  addMsg("jarvis",reply);
+  setState("standby","STANDBY","CLICK RING FOR DEMO");
+}
+document.getElementById("sendBtn").onclick=sendChat;
+document.getElementById("clearBtn").onclick=()=>{feed.innerHTML="";addMsg("sys","chat cleared");};
+document.getElementById("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendChat()});
+
+/* ══════════════════ HOLOGRAPHIC PANELS ══════════════════ */
+function holoBootTicker(el){
+  const lines=()=>Array.from({length:3},()=>
+    "0x"+Math.random().toString(16).slice(2,8).toUpperCase()+"  "+
+    (Math.random()*90).toFixed(4)+"N "+(Math.random()*180).toFixed(4)+"W");
+  el.innerHTML=lines().join("<br>");
+  const iv=setInterval(()=>{el.innerHTML=lines().join("<br>")},65);
+  setTimeout(()=>{clearInterval(iv); el.style.opacity="0"; setTimeout(()=>el.remove(),700)},1000);
+}
+function summonPanel(opts){
+  const o=opts||{};
+  const media=o.media||"iframe", src=o.src||"", title=(o.title||"INCOMING FEED").toUpperCase();
+  const position=["left","right","center"].includes(o.position)?o.position:"center";
+  const p=document.createElement("div");
+  p.className="holo pos-"+position; p.dataset.fx="hologram";
+  let inner="";
+  const esrc=encodeURI(src);
+  if(media==="image") inner=`<img class="holoContent" src="${esrc}" alt="">`;
+  else inner=`<iframe class="holoContent" src="about:blank" allow="autoplay; fullscreen"></iframe>`;
+  p.innerHTML=`
+    <svg class="holoFrame" preserveAspectRatio="none" viewBox="0 0 100 100">
+      <rect x="0.5" y="0.5" width="99" height="99" pathLength="100" vector-effect="non-scaling-stroke"/>
+      <path d="M0.5 8 V0.5 H8" vector-effect="non-scaling-stroke"/>
+      <path d="M92 0.5 H99.5 V8" vector-effect="non-scaling-stroke"/>
+      <path d="M99.5 92 V99.5 H92" vector-effect="non-scaling-stroke"/>
+      <path d="M8 99.5 H0.5 V92" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="holoBar"><span>◈ ${title}</span><span class="hx" title="dismiss">✕</span></div>
+    <div class="holoContentWrap">${inner}</div>
+    <div class="holoHex"></div>
+    <div class="holoScan"></div>
+    <div class="holoChroma c1"></div>
+    <div class="holoChroma c2"></div>
+    <div class="holoBoot"></div>`;
+  document.getElementById("holoStage").appendChild(p);
+  document.getElementById("grid").classList.add("dolly");
+  setTimeout(()=>document.getElementById("grid").classList.remove("dolly"),900);
+  holoBootTicker(p.querySelector(".holoBoot"));
+  p.addEventListener("animationend",e=>{
+    if(e.animationName==="holoApproach") p.classList.add("idle");
+    if(e.animationName==="holoDismiss") p.remove();
+  });
+  p.querySelector(".hx").onclick=()=>dismissPanel(p);
+  addActivity("hologram: "+title.toLowerCase());
+  return p;
+}
+function dismissPanel(p){
+  if(!p||p.classList.contains("dismiss"))return;
+  p.classList.remove("idle"); p.classList.add("dismiss");
+  setTimeout(()=>p.remove(),700);
+}
+function dismissAllPanels(){document.querySelectorAll(".holo").forEach(dismissPanel)}
+window.summonPanel=summonPanel; window.dismissAllPanels=dismissAllPanels;
+
+/* ══════════════════ REACTOR CLICK ══════════════════ */
+document.getElementById("reactorWrap").onclick=()=>demoSimulate().catch(()=>{});
+addEventListener("keydown",e=>{
+  if(e.code==="Space"&&document.activeElement!==document.getElementById("chatInput")){e.preventDefault();demoSimulate().catch(()=>{})}
+});
+
+/* ══════════════════ BOOT SEQUENCE ══════════════════ */
+let bootRunning=false;
+const BOOT_LINES=[
+  ["INITIALIZING NEURAL INTERFACE",380],["LOADING HUD MODULES",300],
+  ["CONNECTING HERMES CORE (demo)",500],["VOICE LINK SIMULATED",340],
+  ["MEMORY SYSTEMS SYNCHRONIZED",380],["WEAPONS OFFLINE. KETTLE ONLINE.",260],
+  ["ALL SYSTEMS NOMINAL",450],["DEMO MODE ACTIVE — LOCAL ONLY",320],
+];
+async function bootSequence(full){
+  if(bootRunning)return; bootRunning=true;
+  const boot=document.getElementById("boot");
+  boot.classList.remove("done"); boot.style.display="flex";
+  document.body.classList.remove("booted");
+  const bl=document.getElementById("bootLines"); bl.innerHTML="";
+  const scale=full?1:0.32;
+  for(const [t,d] of BOOT_LINES){
+    if(!full&&t.startsWith("WEAPONS"))continue;
+    const div=document.createElement("div"); div.innerHTML="▸ "+t+" <b>OK</b>";
+    bl.appendChild(div); await sleep(d*scale);
+  }
+  await sleep(full?300:100);
+  document.querySelectorAll(".panel").forEach((p,i)=>p.style.animationDelay=(120+i*95)+"ms");
+  boot.classList.add("done");
+  document.body.classList.add("booted");
+  setTimeout(()=>{boot.style.display="none"},900);
+  bootRunning=false;
+}
+addEventListener("keydown",e=>{
+  if((e.key==="b"||e.key==="B")&&document.activeElement!==document.getElementById("chatInput"))bootSequence(true);
+});
+bootSequence(true);
+
+/* ══════════════════ DEMO HOLOGRAM SHOWCASE ══════════════════ */
+setTimeout(() => {
+  try {
+    const h = summonPanel({
+      title: "SYSTEMS ONLINE",
+      media: "image",
+      position: "center"
+    });
+    const iframe = h.querySelector(".holoContent");
+    if (iframe && iframe.tagName === "IFRAME") {
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open();
+        doc.write('<!DOCTYPE html><html><body style="background:#050b14;color:#9fd8e8;font-family:Rajdhani,sans-serif;display:flex;align-items:center;justify-content:center;height:100%;text-align:center;">'
+          +'<div>'
+          +'<h1 style="font-family:Orbitron;font-size:28px;letter-spacing:10px;color:#00e5ff;text-shadow:0 0 30px #00e5ff88;margin-bottom:20px;">J.A.R.V.I.S</h1>'
+          +'<p style="font-size:16px;color:#4d7d92;letter-spacing:3px;">DEMONSTRATION MODE</p>'
+          +'<p style="font-size:13px;color:#0a7f96;margin-top:20px;">Standalone · No server required · Double-click to open</p>'
+          +'<p style="font-size:12px;color:#4d7d92;margin-top:10px;">Click the arc reactor or press Space for a demo interaction</p>'
+          +'<p style="font-size:12px;color:#4d7d92;">Press B for cinematic boot · Press Esc to dismiss</p>'
+          +'</div>'
+          +'</body></html>');
+        doc.close();
+      } catch(ex) {}
+    }
+  } catch(ex) {}
+}, 3000);
+
+addMsg("sys","J.A.R.V.I.S demo online. Click the ring or press Space for a simulation.");
+</script>
+</body>
+</html>

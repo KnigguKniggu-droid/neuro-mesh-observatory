@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[ NEUROMESH OBSERVATORY ] /// REV 4.0</title>
+<meta name="theme-color" content="#020A04">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+/* ═══ CRT PHOSPHOR OSCILLOSCOPE — REV 4.0 ═══ */
+:root{
+  --bg-tube:#020A04;
+  --bg-screen:#05140A;
+  --bg-terminal:#000500;
+  --phos-bright:#00FF41;
+  --phos-base:#4AF626;
+  --phos-dim:#28A828;
+  --phos-ghost:rgba(0,255,65,0.15);
+  --trace-cyan:#00FFFF;
+  --trace-blue:#00BFFF;
+  --trace-warn:#FFCC00;
+  --trace-crit:#FF3333;
+  --tube-border:#0F3316;
+  --tube-border-bright:#1F7A2F;
+  --graticule:rgba(74,246,38,0.1);
+  --crt-curve:14px;
+  --crt-glow:0 0 24px rgba(0,255,65,0.12);
+  --glass:rgba(2,10,4,0.88);
+  --cubic-editorial:cubic-bezier(0.32,0.72,0,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth;background:var(--bg-tube)}
+body{background:var(--bg-tube);color:var(--phos-base);font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;line-height:1.5;min-height:100vh;overflow-x:hidden;position:relative}
+
+/* ═══ CRT VIGNETTE + GLARE ═══ */
+#crtVignette{position:fixed;inset:0;z-index:9997;pointer-events:none;background:radial-gradient(ellipse at center,rgba(2,20,6,0) 55%,rgba(0,0,0,0.7) 100%)}
+
+/* ═══ SCANLINES ═══ */
+#scanlines{position:fixed;inset:0;z-index:9998;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.18) 2px,rgba(0,0,0,0.18) 4px);opacity:1}
+
+/* ═══ GRATICULE GRID ═══ */
+#grid-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;background-image:linear-gradient(var(--graticule) 1px,transparent 1px),linear-gradient(90deg,var(--graticule) 1px,transparent 1px);background-size:60px 60px}
+
+/* ═══ CANVAS PARTICLES ═══ */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none;width:100%;height:100%}
+
+/* ═══ HERO — CRT Typing Reveal ═══ */
+.hero{position:relative;z-index:10;max-width:1920px;margin:0 auto;padding:64px 48px 32px}
+.hero-tag{display:block;font-family:'Share Tech Mono','JetBrains Mono',monospace;font-size:0.62rem;font-weight:400;color:var(--phos-bright);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:16px;border-bottom:2px solid var(--tube-border);padding-bottom:10px;display:inline-block}
+.hero h1{font-family:'VT323','Share Tech Mono',monospace;font-size:clamp(2rem,3.5vw,4rem);font-weight:400;line-height:1;letter-spacing:0.04em;color:var(--phos-bright);text-shadow:0 0 18px rgba(0,255,65,0.25);max-width:850px}
+.hero h1 .strike{color:var(--trace-blue);text-shadow:0 0 18px rgba(0,191,255,0.3)}
+.hero h1 .blink{display:inline-block;width:3px;height:clamp(1.8rem,3vw,3.6rem);background:var(--phos-bright);vertical-align:text-bottom;margin-left:4px;animation:crtBlink 0.9s step-end infinite}
+@keyframes crtBlink{0%,100%{opacity:1}50%{opacity:0}}
+.hero .inline-block{display:inline-block;vertical-align:middle;width:clamp(28px,3vw,48px);height:clamp(16px,1.5vw,24px);background:var(--phos-bright);margin:0 5px;box-shadow:0 0 20px rgba(0,255,65,0.3)}
+.hero .sub{display:block;font-family:'Share Tech Mono','JetBrains Mono',monospace;font-size:0.52rem;color:var(--phos-dim);margin-top:18px;text-transform:uppercase;letter-spacing:0.07em;max-width:550px;line-height:1.8}
+.hero .sub strong{color:var(--trace-blue);font-weight:400}
+
+/* ═══ HARDWARE INSTRUMENT TOPBAR ═══ */
+.topbar-wrap{position:sticky;top:0;z-index:100;background:var(--glass);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:2px solid var(--tube-border);padding:8px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:28px}
+.topbar-brand{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:0.56rem;letter-spacing:0.1em;color:var(--phos-bright);text-transform:uppercase;white-space:nowrap}
+.topbar-logo{width:16px;height:16px;color:var(--phos-bright);flex-shrink:0}
+.topbar-spacer{flex:1;min-width:4px}
+.topbar .status-dot{display:inline-block;width:7px;height:7px;background:var(--phos-dim);flex-shrink:0;transition:all 0.3s}
+.topbar .status-dot.active,.topbar .status-dot.pass{background:var(--phos-bright);box-shadow:0 0 8px var(--phos-bright)}
+.topbar .status-dot.fail{background:var(--trace-crit);box-shadow:0 0 8px var(--trace-crit)}
+.topbar .ts{font-size:0.55rem;color:var(--trace-blue);white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.topbar .st{font-size:0.58rem;color:var(--phos-base);white-space:nowrap;font-family:'Share Tech Mono',monospace}
+
+/* ═══ MIC BUTTON — Hardware Toggle ═══ */
+.mic-btn{display:flex;align-items:center;gap:4px;background:var(--bg-screen);border:1px solid var(--tube-border-bright);color:var(--phos-dim);padding:5px 12px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s}
+.mic-btn:hover{border-color:var(--phos-bright);color:var(--phos-bright);box-shadow:inset 0 0 8px var(--phos-ghost)}
+.mic-btn.listening{border-color:var(--phos-bright);color:var(--phos-bright);box-shadow:inset 0 0 14px rgba(0,255,65,0.2);animation:micFlicker 0.6s steps(2) infinite}
+.mic-btn.processing{border-color:var(--trace-warn);color:var(--trace-warn);box-shadow:inset 0 0 10px rgba(255,204,0,0.15)}
+.mic-btn .mic-icon{width:12px;height:12px;flex-shrink:0}
+@keyframes micFlicker{0%,100%{opacity:1}50%{opacity:0.6}}
+
+/* ═══ BENTO GRID ═══ */
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:8px;max-width:1920px;margin:0 auto 40px;padding:0 24px;position:relative;z-index:2}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-3{grid-column:span 3}
+
+/* ═══ CRT INSET SCREEN PANEL ═══ */
+.panel{background:var(--bg-screen);border:2px solid var(--tube-border);border-radius:var(--crt-curve);box-shadow:inset 0 0 40px rgba(0,255,65,0.03),var(--crt-glow);overflow:hidden;transition:box-shadow 0.3s var(--cubic-editorial)}
+.panel-inner{padding:20px;height:100%;display:flex;flex-direction:column;gap:14px;transition:filter 0.25s,box-shadow 0.25s}
+.panel:hover .panel-inner{filter:brightness(1.12);box-shadow:inset 0 0 60px rgba(0,255,65,0.06),0 0 30px rgba(0,255,65,0.08)}
+.panel-header{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px dashed var(--tube-border);padding-bottom:8px;margin-bottom:2px}
+.panel-title{font-family:'Share Tech Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--phos-bright);font-weight:400;text-shadow:0 0 8px rgba(0,255,65,0.2)}
+.panel-title-blue{color:var(--trace-blue);text-shadow:0 0 10px rgba(0,191,255,0.25)}
+.panel-title-red{color:var(--trace-crit);text-shadow:0 0 10px rgba(255,51,51,0.25)}
+
+/* ═══ KPI ROW — CRT Readouts ═══ */
+.kpi-row{grid-column:span 12;display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:6px}
+.kpi-tile{background:var(--bg-screen);border:2px solid var(--tube-border);border-radius:var(--crt-curve);padding:4px}
+.kpi-inner{padding:10px 8px;text-align:center;background:rgba(0,0,0,0.2);border-radius:10px;transition:filter 0.15s}
+.kpi-inner:hover{filter:brightness(1.15)}
+.kpi-label{font-size:0.52rem;color:var(--phos-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;font-family:'Share Tech Mono',monospace}
+.kpi-label-accent{color:var(--trace-blue)}
+.kpi-val{font-family:'VT323','Share Tech Mono',monospace;font-size:clamp(1.4rem,1rem+1vw,2rem);font-weight:400;letter-spacing:0.02em;line-height:1;color:var(--phos-bright);text-shadow:0 0 14px rgba(0,255,65,0.3),0 0 30px rgba(0,255,65,0.1)}
+
+/* ═══ INFO GRIDS ═══ */
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.65rem}
+.kv-item{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px dotted var(--tube-border);padding-bottom:3px}
+.kv-key{color:var(--phos-dim);font-family:'Share Tech Mono',monospace}
+.kv-val{color:var(--trace-cyan)}
+
+/* ═══ CHARTS ═══ */
+.chart-wrap{position:relative;width:100%;height:100%}
+.chart-wrap canvas{width:100%!important}
+
+/* ═══ IR DROP HEATMAP ═══ */
+.heatmap-4x4{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:var(--bg-tube);border-radius:8px;aspect-ratio:1;max-width:260px;margin:0 auto;padding:3px}
+.h-cell{display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;border-radius:5px;cursor:default;transition:filter 0.15s,transform 0.15s;font-family:'JetBrains Mono',monospace;box-shadow:0 0 12px rgba(0,255,65,0.08)}
+.h-cell:hover{filter:brightness(1.4);transform:scale(1.12);z-index:2;box-shadow:0 0 20px rgba(0,255,65,0.25)}
+
+/* ═══ THERMAL PID RING ═══ */
+.pid-wrap{position:relative;width:160px;height:160px;margin:0 auto;flex-shrink:0}
+.pid-wrap canvas{width:100%;height:100%;display:block}
+.pid-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+
+/* ═══ CONTROLS ═══ */
+.form-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.cg-wrapper{display:flex;flex-direction:column;gap:3px}
+.cg-wrapper label{font-size:0.55rem;color:var(--phos-dim);text-transform:uppercase;letter-spacing:0.06em;font-family:'Share Tech Mono',monospace}
+.ctrl-input{background:var(--bg-terminal);border:1px solid var(--tube-border-bright);color:var(--phos-bright);padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:0.62rem;width:68px;border-radius:4px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.ctrl-input:focus{border-color:var(--phos-bright);box-shadow:0 0 8px var(--phos-ghost)}
+
+/* ═══ BUTTONS — Hardware Panel Style ═══ */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;font-family:'Share Tech Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;background:var(--bg-terminal);border:1px solid var(--tube-border-bright);color:var(--phos-base);border-radius:6px}
+.btn:hover{background:var(--bg-screen);border-color:var(--phos-bright);box-shadow:inset 0 0 10px var(--phos-ghost);transform:translateY(-1px)}
+.btn:disabled{border-color:var(--phos-dim);color:var(--phos-dim);box-shadow:none;transform:none;cursor:not-allowed;filter:grayscale(0.5)}
+.btn-primary{border-color:var(--phos-bright);color:var(--phos-bright);box-shadow:0 0 12px rgba(0,255,65,0.1)}
+.btn-primary:hover{box-shadow:0 0 20px rgba(0,255,65,0.2),inset 0 0 12px var(--phos-ghost)}
+.btn-danger{border-color:var(--trace-crit);color:var(--trace-crit)}
+.btn-blue{border-color:var(--trace-blue);color:var(--trace-blue)}
+.btn-blue:hover{border-color:var(--trace-blue);box-shadow:0 0 16px rgba(0,191,255,0.18),inset 0 0 12px rgba(0,191,255,0.06)}
+
+/* ═══ TERMINAL ═══ */
+.terminal-box{background:var(--bg-terminal);border:1px solid var(--tube-border-bright);border-radius:6px;padding:14px;height:200px;overflow-y:auto;font-size:0.58rem;color:var(--phos-dim);font-family:'JetBrains Mono',monospace;line-height:1.7;margin-top:8px;box-shadow:inset 0 0 20px rgba(0,0,0,0.6)}
+.terminal-box .log-pass{color:var(--phos-bright)}
+.terminal-box .log-info{color:var(--trace-blue)}
+.terminal-box .log-warn{color:var(--trace-warn)}
+.terminal-box .log-error{color:var(--trace-crit)}
+
+/* ═══ COLOR UTILITIES ═══ */
+.tc-signal{color:var(--phos-bright)!important}
+.tc-warn{color:var(--trace-warn)!important}
+.tc-crit{color:var(--trace-crit)!important}
+.tc-datapath{color:var(--trace-cyan)!important}
+.tc-blue{color:var(--trace-blue)!important}
+.tc-muted{color:var(--phos-dim)!important}
+
+/* ═══ VOICE TRANSCRIPT ═══ */
+#voiceTranscript{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:200;pointer-events:none;background:var(--bg-terminal);border:1px solid var(--phos-bright);box-shadow:0 0 30px rgba(0,255,65,0.15);padding:16px 24px;max-width:560px;font-family:'Share Tech Mono',monospace;font-size:0.85rem;color:var(--phos-bright);text-align:center;display:none;transition:opacity 0.15s;border-radius:6px}
+#voiceTranscript.show{display:block}
+#voiceTranscript .vt-faint{color:var(--phos-dim);font-size:0.52rem;margin-top:6px}
+#voiceHints{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);z-index:199;pointer-events:none;font-size:0.52rem;color:var(--phos-dim);text-align:center;display:none}
+#voiceHints.show{display:block}
+
+/* ═══ HOLOGRAPHIC MODAL — CRT Overlay ═══ */
+#holoModal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;background:rgba(0,5,0,0.92);backdrop-filter:blur(2px)}
+#holoModal.open{display:flex}
+#holoBox{position:relative;width:85vw;max-width:780px;height:75vh;max-height:600px;background:var(--bg-screen);border:2px solid var(--phos-bright);border-radius:var(--crt-curve);box-shadow:0 0 60px rgba(0,255,65,0.12),inset 0 0 40px rgba(0,255,65,0.02);animation:holoApproach 0.5s var(--cubic-editorial) both}
+@keyframes holoApproach{0%{opacity:0;transform:scale(0.85);filter:brightness(2) blur(4px)}100%{opacity:1;transform:scale(1);filter:brightness(1) blur(0)}}
+#holoScan{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.08) 47%,rgba(0,255,65,0.25) 50%,rgba(0,255,65,0.08) 53%,transparent 100%);background-size:100% 300%;animation:holoScanSweep 0.4s linear 0.15s}
+@keyframes holoScanSweep{0%{opacity:1;background-position:0 -100%}100%{opacity:0;background-position:0 200%}}
+#holoBar{display:flex;align-items:center;justify-content:space-between;height:36px;padding:0 16px;border-bottom:1px solid var(--tube-border-bright);background:rgba(0,0,0,0.3);font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;color:var(--phos-bright);position:relative;z-index:6;border-radius:var(--crt-curve) var(--crt-curve) 0 0}
+#holoBar .hx{cursor:pointer;color:var(--trace-crit);font-size:14px;padding:0 6px;transition:text-shadow 0.15s}
+#holoBar .hx:hover{text-shadow:0 0 10px var(--trace-crit)}
+#holoContent{position:absolute;inset:38px 8px 8px 8px;overflow-y:auto;padding:12px;font-size:0.58rem;font-family:'JetBrains Mono',monospace;line-height:1.7;color:var(--phos-base);opacity:0;animation:holoBodyIn 0.25s steps(3) 0.25s forwards;position:relative;z-index:6}
+@keyframes holoBodyIn{0%{opacity:0}60%{opacity:0.6}100%{opacity:1}}
+
+/* ═══ FOOTER ═══ */
+.site-footer{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;color:var(--phos-dim);padding:10px 0;border-top:1px solid var(--tube-border);flex-wrap:wrap;gap:6px}
+.foot-status{color:var(--phos-bright)}
+.foot-blue{color:var(--trace-blue);text-shadow:0 0 8px rgba(0,191,255,0.2)}
+.foot-warn{color:var(--trace-warn)}
+.foot-crit{color:var(--trace-crit)}
+
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg-tube)}
+::-webkit-scrollbar-thumb{background:var(--tube-border-bright);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--phos-dim)}
+
+@media(max-width:1200px){.span-8,.span-6{grid-column:span 12}.span-4,.span-3{grid-column:span 6}.hero{padding:48px 20px 24px}}
+@media(max-width:768px){.span-4,.span-3{grid-column:span 12}.hero h1{font-size:1.6rem}.topbar-wrap{padding:6px 10px}.kpi-row{grid-template-columns:repeat(2,1fr)}.form-row{flex-direction:column}.ctrl-input{width:100%}.site-footer{flex-direction:column;gap:4px;text-align:center}}
+</style>
+</head>
+<body>
+
+<div id="scanlines"></div>
+<canvas id="particles"></canvas>
+<div id="grid-overlay"></div>
+<div id="crtVignette"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-tag">[ NEUROMESH <span style="color:var(--trace-blue);text-shadow:0 0 10px rgba(0,191,255,0.3)">OBSERVATORY</span> ] /// NPU.CHIPLET.SIM /// REV 4.0</span>
+  <h1 id="hero-h1">
+    > NEURO<span class="strike">MESH</span><span class="inline-block"></span>OBSERV<span class="blink"></span>
+  </h1>
+  <div class="sub">
+    <span style="color:var(--trace-blue)">Mock 3nm</span> · 4&times;4 Mesh · <span style="color:var(--trace-blue)">HBM4</span>/<span style="color:var(--trace-crit)">GDDR7</span> · UCIe/CXL · <strong>UEFI Firmware</strong> · <span style="color:var(--trace-crit)">Voice Pipeline</span>
+  </div>
+</div>
+
+<!-- HARDWARE INSTRUMENT TOPBAR -->
+<div class="topbar-wrap">
+  <div class="topbar-brand">
+    <svg class="topbar-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="9" y="9" width="6" height="6"/><rect x="3" y="16" width="5" height="5"/><rect x="16" y="16" width="5" height="5"/></svg>
+    OBSERVATORY
+  </div>
+  <button class="mic-btn" id="micBtn" onclick="voice.toggle()" title="Voice commands">
+    <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="1" width="8" height="13" rx="4"/><path d="M4 11a8 8 0 0 0 16 0"/><line x1="12" y1="18" x2="12" y2="23"/></svg>
+    <span id="micLabel">VOICE</span>
+  </button>
+  <div class="topbar-spacer"></div>
+  <span class="ts" id="topTs">TS: --</span>
+  <span class="st">STAT <span class="status-dot" id="topDot"></span> <strong id="topStatus" class="tc-signal">IDLE</strong></span>
+</div>
+
+<!-- BENTO GRID -->
+<main class="bento" id="dash">
+
+  <!-- KPI Row -->
+  <div class="kpi-row" id="kpiContainer">
+    <div class="kpi-tile"><div class="kpi-inner"><div class="kpi-label">STATUS</div><div class="kpi-val tc-muted">--</div></div></div>
+    <div class="kpi-tile"><div class="kpi-inner"><div class="kpi-label">SEEDS</div><div class="kpi-val">--</div></div></div>
+    <div class="kpi-tile"><div class="kpi-inner"><div class="kpi-label">COMMANDS</div><div class="kpi-val">--</div></div></div>
+    <div class="kpi-tile"><div class="kpi-inner"><div class="kpi-label kpi-label-accent">WT_UPDATES</div><div class="kpi-val">--</div></div></div>
+    <div class="kpi-tile"><div class="kpi-inner"><div class="kpi-label" style="color:var(--trace-crit)">BACKPRESS</div><div class="kpi-val">--</div></div></div>
+    <div class="kpi-tile"><div class="kpi-inner"><div class="kpi-label" style="color:var(--trace-crit)">COLLISION</div><div class="kpi-val">--</div></div></div>
+    <div class="kpi-tile"><div class="kpi-inner"><div class="kpi-label" style="color:var(--trace-crit)">DEADLOCK</div><div class="kpi-val">--</div></div></div>
+    <div class="kpi-tile"><div class="kpi-inner"><div class="kpi-label" style="color:var(--trace-crit)">DRP_WGHT</div><div class="kpi-val">--</div></div></div>
+  </div>
+
+  <!-- SYS_CFG -->
+  <section class="panel span-3">
+    <div class="panel-inner"><div class="panel-header"><span class="panel-title"><span class="panel-title-blue" style="font-size:0.65rem">SYS</span>_CFG</span></div><div class="kv-grid" id="cfgGrid"></div></div>
+  </section>
+
+  <!-- REG_SUMMARY -->
+  <section class="panel span-3">
+    <div class="panel-inner"><div class="panel-header"><span class="panel-title"><span class="panel-title-red" style="font-size:0.65rem">REG</span>_SUMMARY</span></div><div class="kv-grid" id="regGrid"></div></div>
+  </section>
+
+  <!-- VCD_META -->
+  <section class="panel span-3">
+    <div class="panel-inner"><div class="panel-header"><span class="panel-title"><span class="panel-title-blue" style="font-size:0.65rem">VCD</span>_META</span></div><div class="kv-grid" id="vcdGrid"></div></div>
+  </section>
+
+  <!-- Credits Chart -->
+  <section class="panel span-8" style="min-height:320px">
+    <div class="panel-inner"><div class="panel-header"><span class="panel-title">CREDIT &amp; <span style="color:var(--trace-blue);text-shadow:0 0 8px rgba(0,191,255,0.2)">LINK ACTIVITY</span></span></div><div class="chart-wrap"><canvas id="cCredits"></canvas></div></div>
+  </section>
+
+  <!-- Backpressure Chart -->
+  <section class="panel span-4" style="min-height:320px">
+    <div class="panel-inner"><div class="panel-header"><span class="panel-title-red">STALL / COLLISION STACK</span></div><div class="chart-wrap"><canvas id="cBackpressure"></canvas></div></div>
+  </section>
+
+  <!-- Clocks Chart -->
+  <section class="panel span-4" style="min-height:200px">
+    <div class="panel-inner"><div class="panel-header"><span class="panel-title-blue">CLK DOMAINS</span></div><div class="chart-wrap"><canvas id="cClocks"></canvas></div></div>
+  </section>
+
+  <!-- IR Drop -->
+  <section class="panel span-4">
+    <div class="panel-inner"><div class="panel-header"><span class="panel-title-red">IR DROP MAP 4x4</span></div><div class="heatmap-4x4" id="irMap"><div style="grid-column:span 4;text-align:center;padding:20px;color:var(--phos-dim);font-size:0.52rem">awaiting telemetry...</div></div><div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.55rem;color:var(--trace-blue)"><span id="irMin">&#9660; --</span><span id="irMax">&#9650; --</span></div></div>
+  </section>
+
+  <!-- UEFI Boot -->
+  <section class="panel span-4" id="uefiCard">
+    <div class="panel-inner">
+      <div class="panel-header"><span class="panel-title-blue">UEFI BOOT ROM</span><span id="uefiBadge" class="tc-muted" style="font-size:0.6rem">0xF000_0000</span></div>
+      <div style="font-size:0.6rem;max-height:180px;overflow-y:auto" id="uefiPostLog"><div class="tc-muted">> awaiting UEFI boot sequence...</div></div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btnUefiBoot" onclick="uefi.boot()" style="font-size:0.55rem;padding:5px 12px">&#9654; POST</button>
+        <button class="btn btn-blue" onclick="holo.openRegisters()" style="font-size:0.55rem;padding:5px 12px">REGS</button>
+        <button class="btn btn-danger" id="btnWrapup" onclick="uefi.wrapup()" style="font-size:0.55rem;padding:5px 12px">! WRAPUP</button>
+      </div>
+      <div id="uefiRegSummary" style="font-size:0.55rem;color:var(--phos-dim)"></div>
+    </div>
+  </section>
+
+  <!-- Thermal PID -->
+  <section class="panel span-6">
+    <div class="panel-inner">
+      <div class="panel-header"><span class="panel-title-red">THERMAL PID CONTROLLER</span><span id="pidBadge" class="tc-muted" style="font-size:0.6rem">PID ARMED</span></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+        <div class="pid-wrap"><canvas id="pidCanvas" width="280" height="280"></canvas>
+          <div class="pid-text"><span id="pidFreq" style="font-family:'VT323',monospace;font-size:1.25rem;font-weight:400;color:var(--phos-bright);line-height:1;text-shadow:0 0 14px rgba(0,255,65,0.3)">--</span><span style="font-size:0.6rem;color:var(--phos-dim)">GHz</span><span id="pidAction" style="font-size:0.6rem;margin-top:3px;text-transform:uppercase;letter-spacing:0.05em">--</span></div>
+        </div>
+        <div style="flex:1;min-width:155px">
+          <div class="form-row" style="gap:6px">
+            <div class="cg-wrapper"><label style="color:var(--trace-crit)">LIMIT C</label><input class="ctrl-input" id="iThermalLimit" type="number" value="58" style="width:52px;border-color:rgba(255,51,51,0.4)"></div>
+            <div class="cg-wrapper"><label style="color:var(--trace-blue)">CLK GHz</label><input class="ctrl-input" id="iThermalClk" type="number" value="3.8" step="0.1" style="width:52px;border-color:rgba(0,191,255,0.4)"></div>
+            <div class="cg-wrapper"><label style="color:var(--trace-blue)">LOAD a</label><input class="ctrl-input" id="iThermalLoad" type="number" value="0.95" step="0.01" min="0" max="1" style="width:52px;border-color:rgba(0,191,255,0.4)"></div>
+            <button class="btn btn-primary" id="btnThermal" onclick="ctrl.runThermal()" style="padding:6px 12px;font-size:0.55rem">&#9654; RUN</button>
+          </div>
+          <div id="thermalMsg" style="font-size:0.55rem;color:var(--trace-cyan);margin-top:5px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CDC Yield -->
+  <section class="panel span-6" style="min-height:260px">
+    <div class="panel-inner">
+      <div class="panel-header"><span class="panel-title-blue">CDC YIELD SWEEP</span><span id="yieldBadge" class="tc-muted" style="font-size:0.6rem">MONTE CARLO</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div class="chart-wrap" style="flex:1;min-width:180px;height:160px"><canvas id="cCdc"></canvas></div>
+        <div style="min-width:135px">
+          <div class="cg-wrapper" style="margin-bottom:4px"><label style="color:var(--trace-blue)">ITER/Pt</label><input class="ctrl-input" id="iYieldIters" type="number" value="200" style="width:52px;border-color:rgba(0,191,255,0.4)"></div>
+          <div class="cg-wrapper" style="margin-bottom:4px"><label style="color:var(--trace-crit)">SEED</label><input class="ctrl-input" id="iYieldSeed" type="number" value="73191" style="width:52px;border-color:rgba(255,51,51,0.4)"></div>
+          <div class="cg-wrapper" style="margin-bottom:4px"><label style="color:var(--trace-blue)">GHZ MAX</label><input class="ctrl-input" id="iYieldMax" type="number" value="5" step="0.1" style="width:52px;border-color:rgba(0,191,255,0.4)"></div>
+          <div class="cg-wrapper" style="margin-bottom:4px"><label style="color:var(--trace-blue)">STEP kHz</label><input class="ctrl-input" id="iFreqStep" type="number" value="25000" step="1000" min="1000" max="100000" style="width:64px;border-color:rgba(0,191,255,0.4)"></div>
+          <button class="btn btn-primary" id="btnYield" onclick="ctrl.runUefiCdc()" style="padding:6px 12px;font-size:0.55rem;margin-top:4px">&#9654; SWEEP</button>
+          <div id="yieldMsg" style="font-size:0.55rem;color:var(--trace-cyan);margin-top:4px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Simulation Controls -->
+  <section class="panel span-8" id="ctlCard">
+    <div class="panel-inner">
+      <div class="panel-header"><span class="panel-title"><span style="color:var(--trace-blue);text-shadow:0 0 8px rgba(0,191,255,0.2)">OP</span> CONTROL</span><span id="ctlBadge"></span></div>
+      <div class="form-row">
+        <div class="cg-wrapper"><label style="color:var(--trace-blue)">SEEDS</label><input class="ctrl-input" id="iSeeds" type="number" value="3" min="1" max="5" style="border-color:rgba(0,191,255,0.4)"></div>
+        <div class="cg-wrapper"><label style="color:var(--trace-crit)">COMMANDS</label><input class="ctrl-input" id="iCmds" type="number" value="30" min="2" max="100" style="border-color:rgba(255,51,51,0.4)"></div>
+        <div class="cg-wrapper"><label style="color:var(--trace-blue)">UPDATES</label><input class="ctrl-input" id="iUpds" type="number" value="500" min="1" max="2000" style="border-color:rgba(0,191,255,0.4)"></div>
+        <button class="btn btn-primary" id="btnRun" onclick="ctrl.run()">&#9654; EXEC_SIM</button>
+        <button class="btn btn-blue" onclick="ctrl.load()">&#8635; POLL</button>
+      </div>
+      <div class="terminal-box" id="termOutput"><span class="tc-muted">> awaiting command sequence...</span></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer" style="padding:10px 0;border-top:1px solid var(--tube-border-bright);background:rgba(0,10,5,0.6)">
+    <span><span style="color:var(--trace-blue);text-shadow:0 0 6px rgba(0,191,255,0.3)">UCIE</span> LINK <span id="footLink">--</span></span>
+    <span>PLL <span id="footPll" class="foot-blue">--</span> GHz</span>
+    <span><span style="color:var(--trace-crit);text-shadow:0 0 6px rgba(255,51,51,0.3)">DIE</span> <span id="footTemp">--</span>&deg;C</span>
+    <span id="footMsg" class="foot-status">BOOTING...</span>
+    <span>NEUROMESH <span style="color:var(--trace-blue);text-shadow:0 0 6px rgba(0,191,255,0.3)">OBSERVATORY</span> v4.0</span>
+  </footer>
+</main>
+
+<!-- Voice overlay -->
+<div id="voiceTranscript"></div>
+<div id="voiceHints">Try: "run simulation" &middot; "show credits" &middot; "boot" &middot; "status" &middot; "refresh" &middot; "shutdown"</div>
+
+<!-- Holographic Modal -->
+<div id="holoModal"><div id="holoBox"><div id="holoScan"></div><div id="holoBar"><span>UEFI REGISTER DUMP</span><span class="hx" onclick="holo.close()">&#10005;</span></div><div id="holoContent"></div></div></div>
+
+<script>
+// ═══ CHART.JS DEFAULTS ═══
+Chart.defaults.color='#28A828';
+Chart.defaults.borderColor='rgba(0,255,65,0.1)';
+Chart.defaults.font.family="'JetBrains Mono',monospace";
+Chart.defaults.font.size=10;
+Chart.defaults.plugins.tooltip.backgroundColor='#020A04';
+Chart.defaults.plugins.tooltip.borderColor='#00FF41';
+Chart.defaults.plugins.tooltip.borderWidth=1;
+Chart.defaults.plugins.tooltip.titleColor='#00FF41';
+Chart.defaults.plugins.tooltip.bodyColor='#28A828';
+Chart.defaults.plugins.legend.labels.usePointStyle=true;
+const TRC_BLUE='#00BFFF',TRC_RED='#FF3333',TRC_CYAN='#00FFFF',TRC_YLW='#FFCC00',TRC_GRN='#00FF41',TRC_DGRN='#28A828';
+
+function chartOpts(yMax){return{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{x:{grid:{color:'rgba(0,255,65,0.08)'},ticks:{maxTicksLimit:10,font:{size:9},color:'#28A828'}},y:{beginAtZero:typeof yMax!=='number',max:yMax,grid:{color:'rgba(0,255,65,0.08)'},ticks:{font:{size:9},color:'#28A828'}}},elements:{point:{radius:0},line:{borderWidth:1.5,tension:0.15}},plugins:{legend:{display:true,labels:{boxWidth:10,padding:10,font:{size:9},color:'#00FF41'}}}}}
+
+const charts={c:new Chart(document.getElementById('cCredits'),{type:'line',data:{datasets:[]},options:chartOpts()}),b:new Chart(document.getElementById('cBackpressure'),{type:'bar',data:{datasets:[]},options:{...chartOpts(),scales:{x:{stacked:true,grid:{color:'rgba(74,246,38,0.06)'},ticks:{color:'#1F7A1F'}},y:{stacked:true,grid:{color:'rgba(74,246,38,0.06)'},ticks:{color:'#1F7A1F'}}}}}),k:new Chart(document.getElementById('cClocks'),{type:'line',data:{datasets:[]},options:chartOpts(3)}),y:new Chart(document.getElementById('cCdc'),{type:'line',data:{datasets:[]},options:chartOpts(105)})};
+function updChart(ch,labels,datasets){ch.data.labels=labels;ch.data.datasets=datasets;ch.update('none')}
+
+const F={h:(s)=>{const d=document.createElement('span');d.textContent=s;return d.innerHTML},n:(n)=>Number(n).toLocaleString('en-US'),ns:(n)=>n>=1000?F.n(n/1000)+' us':F.n(n)+' ns'};
+
+// ═══ THERMAL PID RING ═══
+const pidCanvas=document.getElementById('pidCanvas'),pidCtx=pidCanvas.getContext('2d');
+let pidState={freq:0,requestedFreq:4.0,action:'--',workload:0};
+function initPidCanvas(){const dpr=window.devicePixelRatio||1,rect=pidCanvas.parentElement.getBoundingClientRect();pidCanvas.width=rect.width*dpr;pidCanvas.height=rect.height*dpr;pidCanvas.style.width=rect.width+'px';pidCanvas.style.height=rect.height+'px'}
+initPidCanvas();window.addEventListener('resize',initPidCanvas);
+function drawPidRing(timestamp){const dpr=window.devicePixelRatio||1,W=pidCanvas.width,H=pidCanvas.height,cx=W/2,cy=H/2,base=Math.min(W,H)*0.36,isCrit=/CRITICAL/i.test(pidState.action),isCool=/COOLING|PREDICTIVE/i.test(pidState.action),color=isCrit?'#FF3333':isCool?'#FFCC00':'#00FF41';pidCtx.clearRect(0,0,W,H);pidCtx.beginPath();pidCtx.arc(cx,cy,base,0,Math.PI*2);pidCtx.strokeStyle='rgba(74,246,38,0.06)';pidCtx.lineWidth=6*dpr;pidCtx.stroke();const maxFreq=Math.max(pidState.requestedFreq,pidState.freq,4.0),pct=Math.min(100,Math.max(0,(pidState.freq/maxFreq)*100)),angle=(pct/100)*(Math.PI*1.5)+Math.PI*0.75;pidCtx.beginPath();pidCtx.arc(cx,cy,base,Math.PI*0.75,angle);pidCtx.strokeStyle=color;pidCtx.lineWidth=6*dpr;pidCtx.lineCap='square';pidCtx.stroke();pidCtx.lineCap='butt';for(let i=0;i<48;i++){const a=(i/48)*Math.PI*1.5+Math.PI*0.75,isM=i%4===0,r1=base*(isM?0.78:0.83),r2=base*0.9;pidCtx.beginPath();pidCtx.strokeStyle=color;pidCtx.globalAlpha=isM?0.5:0.2;pidCtx.lineWidth=(isM?1.4:0.7)*dpr;pidCtx.moveTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);pidCtx.lineTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2);pidCtx.stroke()}pidCtx.globalAlpha=1;const pulse=1+Math.sin(timestamp/400)*0.08*(1+pidState.workload*2),g=pidCtx.createRadialGradient(cx,cy,0,cx,cy,base*0.35*pulse);g.addColorStop(0,color+'44');g.addColorStop(1,'transparent');pidCtx.fillStyle=g;pidCtx.beginPath();pidCtx.arc(cx,cy,base*0.35*pulse,0,Math.PI*2);pidCtx.fill();requestAnimationFrame(drawPidRing)}requestAnimationFrame(drawPidRing);
+function updatePidGauge(freq,action){pidState.freq=freq;pidState.action=action;pidState.requestedFreq=parseFloat(document.getElementById('iThermalClk').value)||4.0;pidState.workload=parseFloat(document.getElementById('iThermalLoad').value)||0;document.getElementById('pidFreq').textContent=freq.toFixed(1);document.getElementById('pidAction').textContent=action;const isCrit=/CRITICAL/i.test(action),isCool=/COOLING|PREDICTIVE/i.test(action);document.getElementById('pidFreq').style.color=isCrit?'var(--trace-crit)':isCool?'var(--trace-warn)':'var(--phos-bright)';document.getElementById('footTemp').textContent=Math.round(40+pidState.workload*22);document.getElementById('footTemp').className=isCrit?'foot-crit':isCool?'foot-warn':'foot-status'}
+
+// ═══ HOLO MODAL ═══
+const holo={async openRegisters(){const d=await uefi.loadStatus();if(!d){document.getElementById('holoContent').innerHTML='<div class="tc-crit">Failed to fetch register dump</div>';document.getElementById('holoModal').classList.add('open');this._reanim();return}const rows=[['BOOTED',d.booted?'TRUE':'FALSE',d.booted?'tc-signal':'tc-crit'],['BOOT_TIME',d.bootTime||'--',''],['FREQ_GHZ',d.frequencyGHz?.toFixed(2)||'--','tc-datapath'],['FREQ_STEP_KHZ',d.frequencyStepKHz||'--',''],['THERMAL_STATE',d.thermalState||'--',d.thermalState==='CRITICAL'?'tc-crit':'tc-signal'],['THERMAL_TEMP_C',d.thermalCurrentC?.toFixed(1)||'--',''],['THERMAL_LIMIT_C',d.thermalLimitC?.toFixed(0)||'--',''],['CDC_YIELD_90_GHZ',d.cdcYield90GHz?.toFixed(2)||'--','tc-warn'],['CDC_YIELD_99_GHZ',d.cdcYield99GHz?.toFixed(2)||'--','tc-warn'],['CDC_NOMINAL_JITTER',(d.cdcNominalJitterPs?.toFixed(2)||'--')+' ps',''],['CDC_SIGMA',(d.cdcSigma?.toFixed(2)||'--')+' ps',''],['PLL_MULTIPLIER',d.pllMultiplier||'--',''],['PLL_DIVIDER',d.pllDivider||'--',''],['WRAPUP_STATE',d.wrapupState||'--',d.wrapupState==='complete'?'tc-crit':''],['WRAPUP_STEP',d.wrapupStep??'--','']];document.getElementById('holoContent').innerHTML=rows.map(([k,v,c])=>'<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--tube-border);"><span style="color:var(--phos-dim)">'+F.h(k)+'</span><span class="'+c+'" style="font-weight:600">'+F.h(String(v))+'</span></div>').join('');document.getElementById('holoModal').classList.add('open');this._reanim()},_reanim(){['holoScan','holoBox'].forEach(id=>{const el=document.getElementById(id),clone=el.cloneNode(true);el.parentNode.replaceChild(clone,el)})},close(){document.getElementById('holoModal').classList.remove('open')}};
+document.getElementById('holoModal').addEventListener('click',e=>{if(e.target.id==='holoModal')holo.close()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('holoModal').classList.contains('open'))holo.close()});
+
+// ═══ CONTROLLER ═══
+const ctrl={pollId:null,_es:null,async fetch(){try{const r=await fetch('/api/snapshot');if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}catch(e){ctrl.term('ERR: snapshot fetch failed: '+e.message,true);return null}},async load(){const d=await this.fetch();if(d)this.render(d)},startLive(){if(this._es)return;if(this._fastPoll){clearInterval(this._fastPoll);this._fastPoll=null}try{this._es=new EventSource('/api/events');this._es.addEventListener('bootstrap',e=>{try{const d=JSON.parse(e.data);if(d.type==='snapshot'&&d.data)this.render(d.data)}catch{}});this._es.onerror=()=>{this._es.close();this._es=null;this._fastPoll=setInterval(()=>this.load(),5000);setTimeout(()=>this.startLive(),8000)}}catch(e){this._fastPoll=setInterval(()=>this.load(),3000)}},async runThermal(){const btn=document.getElementById('btnThermal');btn.disabled=true;btn.textContent='...';document.getElementById('thermalMsg').textContent='running controller...';try{const res=await fetch('/api/uefi/thermal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({limitC:+document.getElementById('iThermalLimit').value,workload:+document.getElementById('iThermalLoad').value})});const data=await res.json();if(data.error)throw new Error(data.error);const freq=data.throttledGHz||data[0]||3.2;const act=data.action||data[1]||'STABLE';updatePidGauge(freq,act);document.getElementById('thermalMsg').textContent='OK: '+act;document.getElementById('pidBadge').className='tc-signal';if(/CRITICAL/i.test(act)){document.getElementById('pidBadge').className='tc-crit';document.getElementById('footMsg').textContent='THROTTLED';document.getElementById('footMsg').className='foot-warn'}else{document.getElementById('footMsg').textContent='READY';document.getElementById('footMsg').className='foot-status'}}catch(e){document.getElementById('thermalMsg').textContent='ERR: '+e.message;document.getElementById('pidBadge').className='tc-crit'}btn.disabled=false;btn.textContent='\u25B6 RUN'},async runUefiCdc(){const btn=document.getElementById('btnYield');btn.disabled=true;btn.textContent='...';document.getElementById('yieldMsg').textContent='UEFI sweep...';try{const res=await fetch('/api/uefi/cdc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({iterations:+document.getElementById('iYieldIters').value,seed:+document.getElementById('iYieldSeed').value,maxGHz:+document.getElementById('iYieldMax').value,stepGHz:(+document.getElementById('iFreqStep').value)/1000000})});const data=await res.json();if(data.error)throw new Error(data.error);const curve=data.curve||[];updChart(charts.y,curve.map(d=>d[0].toFixed(1)),[{label:'YIELD_%',data:curve.map(d=>d[1]),borderColor:TRC_BLUE,backgroundColor:'rgba(0,191,255,0.08)',fill:true,tension:0.25,borderWidth:2}]);let msg='OK: '+curve.length+' pts';if(data.yield90GHz)msg+=' | 90% @ '+data.yield90GHz.toFixed(2)+' GHz';if(data.yield99GHz)msg+=' | 99% @ '+data.yield99GHz.toFixed(2)+' GHz';document.getElementById('yieldMsg').textContent=msg;document.getElementById('yieldBadge').className='tc-blue'}catch(e){document.getElementById('yieldMsg').textContent='ERR: '+e.message;document.getElementById('yieldBadge').className='tc-crit'}btn.disabled=false;btn.textContent='\u25B6 SWEEP'},async run(){const btn=document.getElementById('btnRun');btn.disabled=true;btn.textContent='EXEC...';this.term('INIT: dispatching simulation...');try{const res=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({seeds:+document.getElementById('iSeeds').value,commands:+document.getElementById('iCmds').value,updates:+document.getElementById('iUpds').value})});const body=await res.json();if(!res.ok&&body.error)throw new Error(body.error);this.term('ACK: simulation accepted, polling status...');if(this.pollId)clearInterval(this.pollId);this.pollId=setInterval(()=>this.pollStatus(),1200)}catch(e){this.term('ERR: '+e.message,true);btn.disabled=false;btn.textContent='\u25B6 EXEC_SIM'}},async pollStatus(){try{const r=await fetch('/api/status'),s=await r.json(),dot=document.getElementById('topDot'),st=document.getElementById('topStatus'),badge=document.getElementById('ctlBadge');if(s.running){dot.className='status-dot active';st.textContent=(s.phase||'RUNNING').toUpperCase();st.className='tc-datapath';badge.innerHTML='<span class="tc-datapath" style="font-size:0.6rem">EXECUTING</span>';document.getElementById('footMsg').textContent='RUNNING';document.getElementById('footMsg').className='foot-status'}else if(s.phase==='passed'){dot.className='status-dot pass';st.textContent='PASS';st.className='tc-signal';badge.innerHTML='<span class="tc-signal" style="font-size:0.6rem">PASS</span>';document.getElementById('footMsg').textContent='READY';document.getElementById('footMsg').className='foot-status'}else if(s.phase==='failed'){dot.className='status-dot fail';st.textContent='FAIL';st.className='tc-crit';badge.innerHTML='<span class="tc-crit" style="font-size:0.6rem">FAIL</span>';document.getElementById('footMsg').textContent='ERROR';document.getElementById('footMsg').className='foot-crit'}else{dot.className='status-dot';st.textContent='IDLE';st.className='tc-signal';badge.innerHTML=''}if(s.logs&&s.logs.length)this.renderLogs(s.logs);if(!s.running&&(s.phase==='passed'||s.phase==='failed')){clearInterval(this.pollId);document.getElementById('btnRun').disabled=false;document.getElementById('btnRun').textContent='\u25B6 EXEC_SIM';setTimeout(()=>this.load(),500)}}catch(e){}},renderLogs(logs){document.getElementById('termOutput').innerHTML=logs.map(l=>{let cls='';if(/(DV_PASS|All.*pass|.*PASSED)/i.test(l))cls='log-pass';else if(/(fail|error|deadlock|DRP)/i.test(l))cls='log-error';else if(/(warn|throttle|COOLING)/i.test(l))cls='log-warn';else if(/(link|training|credit|dispatch|command|update|seed|finalis|init)/i.test(l))cls='log-info';return'<div class="'+cls+'">> '+F.h(l)+'</div>'}).join('');const t=document.getElementById('termOutput');t.scrollTop=t.scrollHeight},term(msg,isErr){const t=document.getElementById('termOutput');t.innerHTML+='<div class="'+(isErr?'log-error':'log-info')+'">> '+F.h(msg)+'</div>';t.scrollTop=t.scrollHeight},render(d){if(d.generatedAt){const ts=d.generatedAt.split('T')[1];document.getElementById('topTs').textContent='TS_'+(ts?ts.split('.')[0]:d.generatedAt)}const reg=d.regression||{},p=d.project||{},vcd=d.vcd||{},tel=d.telemetry||{},pm=d.physicalModels||{};const kpiVals=[{k:'STATUS',v:reg.status||'--',c:reg.status==='PASS'?'tc-signal':'tc-crit'},{k:'SEEDS',v:reg.seeds??'--',c:''},{k:'COMMANDS',v:reg.commands??'--',c:''},{k:'WT_UPD',v:reg.updates??'--',c:'tc-blue'},
+{k:'BPRESS',v:F.n(reg.backpressureCycles||0),c:'tc-crit'},
+{k:'COLLSN',v:F.n(reg.collisionCycles||0),c:'tc-crit'},
+{k:'DLCK',v:reg.deadlocks??'--',c:(reg.deadlocks||0)>0?'tc-crit':'tc-signal'},
+{k:'DRP_WGT',v:reg.droppedWeights??'--',c:(reg.droppedWeights||0)>0?'tc-crit':'tc-signal'}];document.getElementById('kpiContainer').innerHTML=kpiVals.map(x=>'<div class="kpi-tile"><div class="kpi-inner"><div class="kpi-label">'+x.k+'</div><div class="kpi-val '+x.c+'">'+x.v+'</div></div></div>').join('');document.getElementById('cfgGrid').innerHTML=[['TECH',p.technology||'--'],['PRECISION',(p.precision||[]).join('/')||'--'],['MESH',p.mesh||'--'],['MEMORY',p.memory||'--'],['INTERCONNECT',p.interconnect||'--']].map(([k,v])=>'<div class="kv-item"><span class="kv-key">'+k+'</span><span class="kv-val">'+v+'</span></div>').join('');document.getElementById('regGrid').innerHTML=[['SEEDS',reg.seeds??'--'],['CMDS',reg.commands??'--'],['UPDATES',reg.updates??'--'],['LOCAL_TX',reg.localTransactions??'--'],['REMOTE_TX',reg.remoteTransactions??'--'],['DEADLOCKS',reg.deadlocks??'--']].map(([k,v])=>'<div class="kv-item"><span class="kv-key">'+k+'</span><span class="kv-val">'+v+'</span></div>').join('');const tLen=tel.timeNs?tel.timeNs.length:0;document.getElementById('vcdGrid').innerHTML=[['AVAILABLE',vcd.available?'TRUE':'FALSE',vcd.available?'tc-signal':'tc-crit'],['DURATION',tLen>=2?F.ns(tel.timeNs[tLen-1]):'--',''],['POINTS',vcd.points??'--',''],['CRDT_MIN',vcd.minCredits??'--',''],['CRDT_MAX',vcd.maxCredits??'--',''],['COL_WIN',vcd.collisionWindows??'--','']].map(([k,v,c])=>'<div class="kv-item"><span class="kv-key">'+k+'</span><span class="kv-val '+c+'">'+v+'</span></div>').join('');if(tLen){const lbls=tel.timeNs.map(n=>Math.round(n)),strideDn=Math.max(1,Math.floor(lbls.length/160)),sLbl=(arr)=>arr?arr.filter((_,i)=>i%strideDn===0):[],sl=lbls.filter((_,i)=>i%strideDn===0);updChart(charts.c,lbls,[{label:'CREDITS',data:tel.credits||[],borderColor:TRC_GRN,backgroundColor:'rgba(0,255,65,0.06)',fill:true,tension:0.25,borderWidth:2,pointRadius:0},{label:'LINK_ACTIVE',data:(tel.link_active||[]).map(v=>v?Math.max(...(tel.credits||[1]),1)+0.5:NaN),borderColor:TRC_BLUE,borderWidth:1.8,borderDash:[4,2],spanGaps:false,pointRadius:0}]);updChart(charts.b,sl,[{label:'P_STALL',data:sLbl(tel.pooled_stall),backgroundColor:'rgba(255,51,51,0.6)',borderColor:TRC_RED,borderWidth:0.5},{label:'U_STALL',data:sLbl(tel.update_stall),backgroundColor:'rgba(255,204,0,0.5)',borderColor:TRC_YLW,borderWidth:0.5},{label:'COLLISN',data:sLbl(tel.collision),backgroundColor:'rgba(0,191,255,0.4)',borderColor:TRC_BLUE,borderWidth:0.5}]);updChart(charts.k,lbls,[{label:'COMPUTE_CLK',data:(tel.clk||[]).map(v=>v+1.5),borderColor:TRC_GRN,borderWidth:2,tension:0.1,pointRadius:0},{label:'UPDATE_CLK',data:tel.upd_clk||[],borderColor:TRC_BLUE,borderWidth:1.5,tension:0.1,pointRadius:0}])}const irDrop=pm.irDrop;if(irDrop&&Array.isArray(irDrop)&&irDrop.length){const flat=irDrop.flat?irDrop.flat().filter(v=>typeof v==='number'):irDrop.filter(v=>typeof v==='number');
+if(flat.length>=16){
+const minV=Math.min(...flat),maxV=Math.max(...flat),range=maxV-minV||1;
+document.getElementById('irMap').innerHTML=flat.slice(0,16).map(v=>{
+const t=(v-minV)/range;
+const r=Math.round(t*20+5);
+const g=Math.round(180+t*75);
+const b=Math.round(t*20+3);
+return'<div class="h-cell" style="background:rgb('+r+','+g+','+b+');color:'+(t>0.4?'#020A04':'#00FF41')+';box-shadow:0 0 '+Math.round(6+t*14)+'px rgba('+r+','+g+','+b+',0.5)">'+v.toFixed(2)+'</div>'}).join('');
+document.getElementById('irMin').textContent='\u25BC '+minV.toFixed(3)+'V';
+document.getElementById('irMax').textContent='\u25B2 '+maxV.toFixed(3)+'V'
+}else if(flat.length>0){
+document.getElementById('irMap').innerHTML=flat.map(v=>'<div class="h-cell" style="background:rgb(10,160,8);color:#020A04;box-shadow:0 0 8px rgba(0,255,65,0.3)">'+v.toFixed(2)+'</div>').join('')
+}}const tc=pm.thermalControl;if(tc&&Array.isArray(tc)&&tc.length>=2)updatePidGauge(tc[0],tc[1]);const cdc=pm.cdcYield;if(cdc&&Array.isArray(cdc)&&cdc.length)updChart(charts.y,cdc.map(d=>d[0].toFixed(1)),[{label:'YIELD_%',data:cdc.map(d=>d[1]),borderColor:TRC_BLUE,backgroundColor:'rgba(0,191,255,0.08)',fill:true,borderWidth:2,tension:0.25}]);document.getElementById('topDot').className='status-dot '+(reg.status==='PASS'?'pass':'');document.getElementById('topStatus').textContent=reg.status==='PASS'?'PASS':'IDLE';document.getElementById('topStatus').className=reg.status==='PASS'?'tc-signal':'tc-signal';document.getElementById('footPll').textContent=(d.uefi?.frequencyGHz||(tc&&tc[0])||'--').toString().slice(0,5);const linkActive=tel.link_active&&tel.link_active.some(v=>v===1);
+document.getElementById('footLink').textContent=linkActive?'LIVE':vcd.available?'ACTIVE':'--';
+document.getElementById('footLink').className=linkActive?'foot-status':vcd.available?'foot-status':'';if(document.getElementById('footMsg').textContent==='BOOTING...'){document.getElementById('footMsg').textContent='READY';document.getElementById('footMsg').className='foot-status'}}};
+
+// ═══ UEFI ═══
+const uefi={isBooting:false,async boot(){if(this.isBooting)return;this.isBooting=true;const btn=document.getElementById('btnUefiBoot');btn.disabled=true;btn.textContent='POST...';const log=document.getElementById('uefiPostLog');log.innerHTML='';try{const res=await fetch('/api/uefi/boot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({frequencyGHz:+document.getElementById('iThermalClk').value||3.8,frequencyStepKHz:+document.getElementById('iFreqStep').value||25000,thermalLimitC:+document.getElementById('iThermalLimit').value||58,cdcSeed:+document.getElementById('iYieldSeed').value||73191})});const data=await res.json();if(data.error)throw new Error(data.error);const checkpoints=data.checkpoints||[];for(let i=0;i<checkpoints.length;i++){const c=checkpoints[i],div=document.createElement('div');div.className=c.code.startsWith('0x8')?'tc-crit':'tc-signal';div.style.cssText='font-size:0.6rem;opacity:0;animation:fadeIn 0.2s forwards';div.innerHTML='> ['+c.code+'] '+F.h(c.name)+': <b>OK</b>';log.appendChild(div);log.scrollTop=log.scrollHeight;await new Promise(r=>setTimeout(r,140+Math.random()*80))}const clk=data.clockConfig||{},therm=data.thermalConfig||{};document.getElementById('uefiRegSummary').innerHTML='PLL: '+(clk.frequencyGHz?.toFixed(2)||'--')+' GHz . step: '+(clk.frequencyStepKHz||'--')+' kHz . T: '+(therm.currentC?.toFixed(1)||'--')+'C / '+(therm.limitC?.toFixed(0)||'--')+'C . boot: '+(data.success?'OK':'FAIL');if(data.thermalLoop)updatePidGauge(data.thermalLoop.throttledGHz,data.thermalLoop.action);if(data.cdcSweep&&data.cdcSweep.curve){const curve=data.cdcSweep.curve;updChart(charts.y,curve.map(d=>d[0].toFixed(1)),[{label:'YIELD_%',data:curve.map(d=>d[1]),borderColor:TRC_BLUE,backgroundColor:'rgba(0,191,255,0.08)',fill:true,tension:0.25,borderWidth:2}]);if(data.cdcSweep.yield90GHz)document.getElementById('yieldMsg').textContent='UEFI boot: 90% @ '+data.cdcSweep.yield90GHz.toFixed(2)+' GHz'}document.getElementById('uefiBadge').className=data.success?'tc-blue':'tc-crit';document.getElementById('uefiBadge').textContent=data.success?'POST OK':'POST FAIL';document.getElementById('footPll').textContent=(clk.frequencyGHz||0).toFixed(2);document.getElementById('footPll').className='foot-status'}catch(e){log.innerHTML='<div class="tc-crit" style="font-size:0.6rem">> ERR: '+F.h(e.message)+'</div>';document.getElementById('uefiBadge').className='tc-crit'}btn.disabled=false;btn.textContent='\u25B6 POST';this.isBooting=false},async loadStatus(){try{const res=await fetch('/api/uefi/status'),d=await res.json();document.getElementById('uefiRegSummary').innerHTML='PLL: '+(d.frequencyGHz?.toFixed(2)||'--')+' GHz . step: '+(d.frequencyStepKHz||'--')+' kHz . state: '+(d.thermalState||'--')+' . T: '+(d.thermalCurrentC?.toFixed(1)||'--')+'C . boot: '+(d.booted?'YES':'NO')+' . yield90: '+(d.cdcYield90GHz?.toFixed(2)||'--')+' GHz';document.getElementById('uefiBadge').className=d.booted?'tc-signal':'tc-muted';document.getElementById('uefiBadge').textContent=d.booted?'RUNNING':'STANDBY';return d}catch(e){document.getElementById('uefiRegSummary').textContent='ERR: '+e.message;return null}},async wrapup(){if(!confirm('Initiate thermal wrap-up shutdown sequence?'))return;const btn=document.getElementById('btnWrapup');btn.disabled=true;try{const res=await fetch('/api/uefi/wrapup',{method:'POST'}),d=await res.json(),log=document.getElementById('uefiPostLog');log.innerHTML='';for(const step of d.sequence){const div=document.createElement('div');div.className='tc-warn';div.style.cssText='font-size:0.6rem;opacity:0;animation:fadeIn 0.18s forwards';div.innerHTML='> ['+step.step+'/8] '+F.h(step.action);log.appendChild(div);log.scrollTop=log.scrollHeight;await new Promise(r=>setTimeout(r,110))}document.getElementById('uefiBadge').className='tc-crit';document.getElementById('uefiBadge').textContent='SHUTDOWN';document.getElementById('pidBadge').className='tc-crit';document.getElementById('pidBadge').textContent='WRAPUP DONE';document.getElementById('footMsg').textContent='SHUTDOWN';document.getElementById('footMsg').className='foot-crit'}catch(e){document.getElementById('uefiPostLog').innerHTML+='<div class="tc-crit" style="font-size:0.5rem">ERR: '+F.h(e.message)+'</div>'}btn.disabled=false}};
+
+// ═══ VOICE ═══
+const voice={rec:null,state:'idle',finalTranscript:'',init(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){document.getElementById('micBtn').style.display='none';return}this.rec=new SR();this.rec.continuous=false;this.rec.interimResults=true;this.rec.lang='en-US';this.rec.onresult=(e)=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript.trim();if(e.results[i].isFinal)this.finalTranscript=t;else interim=t}const text=this.finalTranscript||interim;if(text)this.showTranscript(text,!this.finalTranscript)};this.rec.onerror=(e)=>{if(e.error!=='no-speech'&&e.error!=='aborted')this.showTranscript('ERR: '+e.error,false);this.endSession()};this.rec.onend=()=>{if(this.state==='listening')this.dispatch(this.finalTranscript);else this.endSession()}},toggle(){if(!this.rec){this.showTranscript('Voice requires Chrome',false);return}if(this.state==='idle')this.startListening();else if(this.state==='listening'){this.state='processing';this.rec.abort()}},startListening(){this.state='listening';this.finalTranscript='';const btn=document.getElementById('micBtn');btn.classList.add('listening');btn.classList.remove('processing');document.getElementById('micLabel').textContent='LISTEN';document.getElementById('voiceHints').classList.add('show');this.showTranscript('>> listening...',true);try{this.rec.start()}catch(e){this.showTranscript('(already listening)',true)}},endSession(){this.state='idle';const btn=document.getElementById('micBtn');btn.classList.remove('listening','processing');document.getElementById('micLabel').textContent='VOICE';document.getElementById('voiceHints').classList.remove('show');if(this._ht)clearTimeout(this._ht);this._ht=setTimeout(()=>{document.getElementById('voiceTranscript').classList.remove('show')},2500)},showTranscript(text,isInterim){if(this._ht)clearTimeout(this._ht);const el=document.getElementById('voiceTranscript');el.classList.add('show');if(isInterim){el.innerHTML='<span style="opacity:0.7">'+F.h(text)+'</span><div class="vt-faint">>> listening... tap mic to send</div>'}else{el.innerHTML=F.h(text)+'<div class="vt-faint">processing command...</div>';document.getElementById('micBtn').classList.add('processing');document.getElementById('micBtn').classList.remove('listening');document.getElementById('voiceHints').classList.remove('show')}},async dispatch(text){if(!text){this.endSession();return}const t=text.toLowerCase().trim();ctrl.term('VOICE: "'+text+'"');this.state='processing';const matched=await this.matchAndRun(t);if(matched)this.showTranscript('OK '+matched,false);else{ctrl.term('VOICE: unrecognized - try: run simulation, show credits, boot, status, refresh',false);this.showTranscript('? unrecognized - try "run simulation"',false)}this.endSession()},async matchAndRun(t){if(/run\s+(sim|simulation|regression)/.test(t)||/execute\s+(sim|regression)/.test(t)){await ctrl.run();return'simulation started'}if(/run\s+thermal|thermal\s+(controller|pid|run)/.test(t)){await ctrl.runThermal();return'thermal PID executed'}if(/run\s+sweep|cdc\s+sweep|yield\s+sweep|frequency\s+sweep/.test(t)){await ctrl.runUefiCdc();return'CDC sweep completed'}if(/boot|post|uefi\s+boot|power\s+on\s+self/.test(t)){await uefi.boot();return'UEFI POST executed'}if(/show\s+(register|reg)|dump\s+(register|reg)|open\s+(register|reg)/.test(t)){holo.openRegisters();return'register dump shown'}if(/refresh|poll|update|reload|fetch/.test(t)){await ctrl.load();return'dashboard refreshed'}if(/shutdown|wrap\s*up|emergency|halt/.test(t)){await uefi.wrapup();return'shutdown initiated'}if(/show\s+credit|about|who\s+built|version/.test(t)){document.getElementById('termOutput').innerHTML='<div class="log-pass">> ==============================</div><div class="log-pass">> NeuroMesh Observatory v4.0</div><div class="log-pass">> NPU Chiplet Simulation & Verification</div><div class="log-pass">> CRT Phosphor Oscilloscope Design</div><div class="log-pass">> UEFI Firmware . Physical Models . Voice</div><div class="log-pass">> ==============================</div>';return'credits displayed'}if(/status|what'?s?\s+(the\s+)?status|system\s+status|how\s+are\s+we/.test(t)){await ctrl.load();return'status: '+document.getElementById('topStatus').textContent}if(/help|what\s+can\s+(you|i)\s+(do|say)|commands|list/.test(t)){ctrl.term('VOICE COMMANDS: run simulation . run thermal . run sweep . boot . show registers . refresh . shutdown . show credits . status . help',false);return'help shown in terminal'}return null}};voice.init();
+
+// ═══ HORIZONTAL ELECTRON PARTICLES ═══
+const pCvs=document.getElementById('particles'),pCtx=pCvs.getContext('2d');
+let pW,pH,nodes=[],scrollPaused=false,scrollTO;
+function resizeParticles(){pW=pCvs.width=window.innerWidth;pH=pCvs.height=window.innerHeight;nodes=[];for(let i=0;i<35;i++)nodes.push({x:Math.random()*pW,y:Math.random()*pH,vx:(Math.random()-.5)*2.5,vy:(Math.random()-.5)*0.3,r:Math.random()*0.8+.1,a:Math.random()*.2+.04,c:'g'});for(let i=0;i<12;i++)nodes.push({x:Math.random()*pW,y:Math.random()*pH,vx:(Math.random()-.5)*2.8,vy:(Math.random()-.5)*0.25,r:Math.random()*1+.2,a:Math.random()*.15+.03,c:'b'});for(let i=0;i<6;i++)nodes.push({x:Math.random()*pW,y:Math.random()*pH,vx:(Math.random()-.5)*2,vy:(Math.random()-.5)*0.2,r:Math.random()*.7+.1,a:Math.random()*.12+.02,c:'r'})}
+resizeParticles();window.addEventListener('resize',resizeParticles);
+window.addEventListener('scroll',()=>{scrollPaused=true;clearTimeout(scrollTO);scrollTO=setTimeout(()=>scrollPaused=false,160)},{passive:true});
+let mxP=-500,myP=-500;document.addEventListener('mousemove',e=>{mxP=e.clientX;myP=e.clientY});
+function drawParticles(){if(scrollPaused){requestAnimationFrame(drawParticles);return}
+pCtx.clearRect(0,0,pW,pH);  for(const n of nodes){n.x+=n.vx;n.y+=n.vy;if(n.x<0)n.x=pW;if(n.x>pW)n.x=0;if(n.y<0)n.y=pH;if(n.y>pH)n.y=0;
+const trailLen=n.vx*3;
+const col=n.c==='b'?'0,191,255':n.c==='r'?'255,51,51':'0,255,65';
+pCtx.beginPath();pCtx.moveTo(n.x,n.y);pCtx.lineTo(n.x-trailLen,n.y);pCtx.strokeStyle='rgba('+col+','+(n.a*0.4)+')';pCtx.lineWidth=n.r;pCtx.stroke();
+pCtx.beginPath();pCtx.arc(n.x,n.y,n.r,0,Math.PI*2);pCtx.fillStyle='rgba('+col+','+n.a+')';pCtx.fill()}
+for(let i=0;i<nodes.length;i++){const a=nodes[i];const col=a.c==='b'?'0,191,255':a.c==='r'?'255,51,51':'0,255,65';for(let j=i+1;j<nodes.length;j++){const b=nodes[j];if(a.c!==b.c)continue;const d=Math.hypot(a.x-b.x,a.y-b.y);if(d<70){pCtx.beginPath();pCtx.moveTo(a.x,a.y);pCtx.lineTo(b.x,b.y);pCtx.strokeStyle='rgba('+col+','+(.015*(1-d/70))+')';pCtx.lineWidth=.2;pCtx.stroke()}}}
+requestAnimationFrame(drawParticles)}requestAnimationFrame(drawParticles);
+
+// ═══ FADE-IN KEYFRAME ═══
+const fadeStyle=document.createElement('style');
+fadeStyle.textContent='@keyframes fadeIn{0%{opacity:0;transform:translateX(-4px)}100%{opacity:1;transform:translateX(0)}}';
+document.head.appendChild(fadeStyle);
+
+// ═══ INIT ═══
+ctrl.load();
+ctrl.startLive();
+ctrl._fastPoll=setInterval(()=>ctrl.load(),3000);
+
+// ═══ LIVE OSCILLOSCOPE SWEEP ═══
+ctrl._sweepIdx=0;ctrl._sweepWin=70;ctrl._sweepData=null;ctrl._sweepTimer=null;
+ctrl._stopSweep=function(){if(this._sweepTimer){clearInterval(this._sweepTimer);this._sweepTimer=null}}
+ctrl._startSweepTimer=function(){this._stopSweep();this._sweepTimer=setInterval(()=>this._sweepTick(),100)}
+ctrl._sweepTick=function(){
+  if(!this._sweepData)return;
+  const t=this._sweepData,N=t.timeNs.length;
+  if(N<this._sweepWin||!charts.c.data.datasets[0])return;
+  const idx=this._sweepIdx%N;
+  let end=idx+this._sweepWin;
+  if(end>N){const gap=end-N;end=N;this._sweepIdx+=gap}
+  const swLbl=t.timeNs.slice(idx,end).map(n=>Math.round(n));
+  const swCred=t.credits?t.credits.slice(idx,end):[];
+  const maxCred=Math.max(...(t.credits||[8]));
+  charts.c.data.labels=swLbl;
+  charts.c.data.datasets[0].data=swCred;
+  if(charts.c.data.datasets[1])charts.c.data.datasets[1].data=t.link_active?t.link_active.slice(idx,end).map(v=>v?maxCred+0.5:NaN):[];
+  charts.c.data.datasets[0].borderColor=TRC_GRN;
+  if(charts.c.data.datasets[1])charts.c.data.datasets[1].borderColor=TRC_BLUE;
+  charts.c.update('none');
+  if(charts.k.data.datasets[0]){
+    charts.k.data.labels=swLbl;
+    charts.k.data.datasets[0].data=t.clk?t.clk.slice(idx,end).map(v=>v+1.5):[];
+    if(charts.k.data.datasets[1])charts.k.data.datasets[1].data=t.upd_clk?t.upd_clk.slice(idx,end):[];
+    charts.k.data.datasets[0].borderColor=TRC_GRN;
+    if(charts.k.data.datasets[1])charts.k.data.datasets[1].borderColor=TRC_BLUE;
+    charts.k.update('none');
+  }
+  if(charts.b.data.datasets[0]){
+    charts.b.data.labels=swLbl;
+    charts.b.data.datasets[0].data=t.pooled_stall?t.pooled_stall.slice(idx,end):[];
+    if(charts.b.data.datasets[1])charts.b.data.datasets[1].data=t.update_stall?t.update_stall.slice(idx,end):[];
+    if(charts.b.data.datasets[2])charts.b.data.datasets[2].data=t.collision?t.collision.slice(idx,end):[];
+    charts.b.data.datasets[0].backgroundColor='rgba(255,51,51,0.6)';
+    if(charts.b.data.datasets[2])charts.b.data.datasets[2].backgroundColor='rgba(0,191,255,0.4)';
+    charts.b.update('none');
+  }
+  this._sweepIdx++;
+};
+const _origRender=ctrl.render.bind(ctrl);
+ctrl.render=function(d){
+  const changed=!this._sweepTs||(d&&d.generatedAt!==this._sweepTs);
+  if(changed)this._stopSweep();
+  _origRender(d);
+  if(d&&d.telemetry&&d.telemetry.timeNs&&d.telemetry.timeNs.length>60){
+    this._sweepData=d.telemetry;
+    this._sweepTs=d.generatedAt;
+    if(changed||!this._sweepTimer)setTimeout(()=>this._startSweepTimer(),changed?150:0);
+  }
+};
+document.addEventListener('visibilitychange',()=>{if(document.hidden)ctrl._stopSweep();else if(ctrl._sweepData)ctrl._startSweepTimer()});
+setTimeout(()=>{document.getElementById('footMsg').textContent='READY';document.getElementById('footMsg').className='foot-status'},600);
+</script>
+</body>
+</html>

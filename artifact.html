@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroMesh Observatory — Build Artifact</title>
+<style>
+  :root {
+    --bg: #080c14; --surface: #0d1220; --card: #111827;
+    --border: #1a3a2a; --text: #dce5e8; --muted: #6b7c7c;
+    --sig: #00e5a0; --warn: #f0a500; --crit: #f04354; --data: #5eead4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.55; padding: 32px 24px; max-width: 1100px; margin: 0 auto;
+  }
+  h1 { font-size: 1.6rem; color: var(--sig); margin-bottom: 4px; }
+  h2 { font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 28px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 18px 20px; margin-bottom: 12px; }
+  .card-header { font-weight: 700; font-size: 0.85rem; color: var(--data); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge-done { background: rgba(0,229,160,0.12); color: var(--sig); }
+  .badge-new  { background: rgba(94,234,212,0.12); color: var(--data); }
+  .badge-fix  { background: rgba(240,165,0,0.12); color: var(--warn); }
+  .badge-crit { background: rgba(240,67,84,0.12); color: var(--crit); }
+  .badge-ux   { background: rgba(148,85,255,0.12); color: #b794f4; }
+  .badge-demo { background: rgba(240,165,0,0.12); color: var(--warn); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  ul { list-style: none; }
+  li { padding: 4px 0; font-size: 0.82rem; display: flex; align-items: flex-start; gap: 8px; }
+  li::before { content: '\25B8'; color: var(--sig); font-size: 0.7rem; flex-shrink: 0; margin-top: 2px; }
+  li.done::before { content: '\2713'; color: var(--sig); }
+  .stat { text-align: center; }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--sig); }
+  .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  code { background: var(--bg); padding: 1px 6px; border-radius: 2px; font-size: 0.8rem; color: var(--data); }
+  .file-path { color: var(--muted); font-size: 0.75rem; font-family: monospace; }
+  .timeline { position: relative; padding-left: 20px; }
+  .timeline::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 16px; font-size: 0.82rem; }
+  .tl-item::before { content: ''; position: absolute; left: -17px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--sig); }
+  .tl-item.ux::before { background: #b794f4; }
+  .tl-item.demo::before { background: var(--warn); }
+  .tl-time { color: var(--muted); font-size: 0.7rem; }
+  table { width: 100%; font-size: 0.82rem; border-collapse: collapse; }
+  thead tr { color: var(--muted); text-align: left; }
+  td, th { padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  td:first-child { color: var(--data); white-space: nowrap; }
+  @media (max-width: 700px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>NeuroMesh Observatory — Build Artifact</h1>
+<p class="subtitle">Complete record of all tasks, changes, and deliverables. Generated July 5, 2026.</p>
+
+<div class="grid3" style="margin-bottom:28px;">
+  <div class="card stat"><div class="stat-num">7</div><div class="stat-label">Files Created</div></div>
+  <div class="card stat"><div class="stat-num">3</div><div class="stat-label">Files Modified</div></div>
+  <div class="card stat"><div class="stat-num">39</div><div class="stat-label">Tasks Completed</div></div>
+</div>
+
+<h2>Project Manifest</h2>
+
+<div class="grid2">
+  <div class="card">
+    <div class="card-header"><span class="badge badge-new">NEW</span> dashboard/index.html</div>
+    <p style="font-size:0.8rem;color:var(--muted);">Anti-slop dashboard — 10 JARVIS HUD UX patterns (clip-path chamfered cards, staggered panelIn animation, phosphor status dots, button hover glow, animated UEFI POST, CRT scanlines, holographic modal, canvas thermal PID ring, footer status bar, scrollbar polish). Voice command pipeline with SpeechRecognition API (11 commands). SSE EventSource client + WebSocket integration. Chart.js telemetry, IR heatmap, simulation controls.</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-new">NEW</span> uefi_firmware.py</div>
+    <p style="font-size:0.8rem;color:var(--muted);">UEFI Boot ROM — POST (6 checkpoints), PLL config with frequency step (Q8.8), thermal fuse tables, CDC yield calibration, thermal wrap-up (8-step emergency shutdown). 17 readable registers at 0xF000_0000.</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-new">NEW</span> jarvis_demo.html</div>
+    <p style="font-size:0.8rem;color:var(--muted);">Standalone JARVIS HUD demo — cinematic boot sequence, animated arc reactor ring (canvas rAF, multi-layer, pulse, tick marks, state-color mapping), 10 HUD panels, demo simulation (click ring or Space), typed chat with demo replies, B for boot replay, holographic welcome panel, mobile-responsive. Zero dependencies, no server needed.</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-new">NEW</span> start_jarvis.bat</div>
+    <p style="font-size:0.8rem;color:var(--muted);">Windows double-click launcher — opens jarvis_demo.html in the default browser.</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-new">NEW</span> dashboard/data/snapshot.json</div>
+    <p style="font-size:0.8rem;color:var(--muted);">Cached telemetry snapshot with UEFI register state, project config, regression results, VCD metadata, and physical model outputs.</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-new">NEW</span> artifact.html</div>
+    <p style="font-size:0.8rem;color:var(--muted);">This page — complete build record with 7 phases, 39 tasks, file manifest, API table, and quick commands.</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-fix">MODIFIED</span> serve_dashboard.py</div>
+    <p style="font-size:0.8rem;color:var(--muted);">14 endpoints total: 6 UEFI routes + SSE EventBus (/api/events) for simulation streaming + WebSocket (/ws) for bidirectional voice/events + existing REST endpoints. EventBus publish/subscribe architecture. Fixed NumPy serialization, dead code cleanup.</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-fix">MODIFIED</span> physical_models.py</div>
+    <p style="font-size:0.8rem;color:var(--muted);">Updated thermal PID and CDC yield to accept dashboard-style kwargs. Added workload-derived temp boost and duration-aware ramp factor.</p>
+  </div>
+</div>
+
+<div style="margin-top:8px;">
+  <span class="file-path">dashboard/index.html</span> <span style="color:var(--muted);font-size:0.75rem;">— Anti-slop dashboard + 10 UX patterns + voice + SSE/WS (created &amp; heavily modified)</span><br>
+  <span class="file-path">uefi_firmware.py</span> <span style="color:var(--muted);font-size:0.75rem;">— UEFI boot ROM (created)</span><br>
+  <span class="file-path">jarvis_demo.html</span> <span style="color:var(--muted);font-size:0.75rem;">— JARVIS HUD standalone demo (created)</span><br>
+  <span class="file-path">start_jarvis.bat</span> <span style="color:var(--muted);font-size:0.75rem;">— JARVIS launcher (created)</span><br>
+  <span class="file-path">artifact.html</span> <span style="color:var(--muted);font-size:0.75rem;">— Build artifact (created)</span><br>
+  <span class="file-path">dashboard/data/snapshot.json</span> <span style="color:var(--muted);font-size:0.75rem;">— Telemetry cache (created)</span><br>
+  <span class="file-path">serve_dashboard.py</span> <span style="color:var(--muted);font-size:0.75rem;">— HTTP server + 14 endpoints + SSE + WS (modified)</span><br>
+  <span class="file-path">physical_models.py</span> <span style="color:var(--muted);font-size:0.75rem;">— IR drop, thermal PID, CDC yield (modified)</span><br>
+  <span class="file-path">plot_ucie_waveforms.py</span> <span style="color:var(--muted);font-size:0.75rem;">— VCD parser + plotter (unchanged)</span><br>
+  <span class="file-path">jarvis_ai/</span> <span style="color:var(--muted);font-size:0.75rem;">— Cloned voice assistant repo</span>
+</div>
+
+<h2>Task Timeline</h2>
+
+<div class="timeline">
+
+  <div class="tl-item">
+    <div class="tl-time">Phase 1 — Dashboard Foundation</div>
+    <strong>Created initial dashboard with Chart.js</strong>
+    <ul>
+      <li class="done">Built index.html with dark theme, Chart.js telemetry, KPI tiles, IR heatmap, PID gauge, CDC yield, simulation controls, live terminal</li>
+      <li class="done">Integrated API endpoints: GET /api/snapshot, GET /api/status, POST /api/run</li>
+      <li class="done">Responsive CSS Grid layout with mobile breakpoints</li>
+    </ul>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-time">Phase 1 — Bug Fixes</div>
+    <strong>Fixed NumPy serialization and chart rendering</strong>
+    <ul>
+      <li class="done">Fixed NumPy ndarray to list in build_snapshot()</li>
+      <li class="done">Added explicit chart container heights, empty states, stacked bar downsampling</li>
+      <li class="done">Fixed fetchStatus() not called on init, VCD meta guard, CDC yield empty state</li>
+    </ul>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-time">Phase 2 — Anti-Slop Rebuild</div>
+    <strong>Complete redesign: Retro-Futuristic × Industrial Utilitarian</strong>
+    <ul>
+      <li class="done">Design Constitution: semantic tokens, Space Grotesk + JetBrains Mono, fluid clamp typography</li>
+      <li class="done">SVG grain noise overlay, cursor-tracking spotlight on bento cards, asymmetric 12-column bento grid</li>
+      <li class="done">4 Chart.js charts, IR heatmap, PID ring gauge, terminal log, 25s snapshot auto-refresh</li>
+    </ul>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-time">Phase 3 — API &amp; Physical Models</div>
+    <strong>Fixed /api/thermal and /api/yield, added interactive panels</strong>
+    <ul>
+      <li class="done">Updated simulate_thermal_pid and simulate_cdc_yield to accept dashboard-style params</li>
+      <li class="done">Added interactive THERMAL_PID_CONTROLLER and CDC_YIELD_SWEEP panels</li>
+      <li class="done">Broadened except clauses + JSON 404s, dynamic PID max-frequency</li>
+    </ul>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-time">Phase 4 — UEFI Firmware</div>
+    <strong>Built UEFI boot ROM simulation + endpoints + dashboard integration</strong>
+    <ul>
+      <li class="done">Created uefi_firmware.py: UEFIBootROM class with POST, PLL, thermal fuses, CDC yield, wrap-up</li>
+      <li class="done">Added 6 UEFI API endpoints + UEFI_BOOT_ROM panel + frequency step slider</li>
+      <li class="done">Wired UEFI registers into snapshot, fixed CDC step sync and yield register bugs</li>
+    </ul>
+  </div>
+
+  <div class="tl-item ux">
+    <div class="tl-time">Phase 5 — JARVIS UX Transplant (10 Patterns)</div>
+    <strong>Transplanted 10 UX patterns from JARVIS HUD to NeuroMesh dashboard</strong>
+    <ul>
+      <li class="done">Clip-path chamfered bento cards with ::after border trick (preserves spotlight containment)</li>
+      <li class="done">Staggered panelIn entrance animation (opacity flicker, body.booting opacity:0 to prevent flash)</li>
+      <li class="done">Status dot phosphor glow (box-shadow on .active .pass .fail)</li>
+      <li class="done">Button hover glow + translateY(-1px) lift (no solid fill, JARVIS-style)</li>
+      <li class="done">Animated sequential UEFI POST boot (setTimeout 180+rand ms delays, per-line panelIn)</li>
+      <li class="done">CRT scanline overlay (body::after, repeating-linear-gradient 2px pitch, 2.5% opacity)</li>
+      <li class="done">Holographic register modal — 3D holoApproach entry, corner brackets, chromatic aberration flicker, scan sweep, hex grid overlay, holoBodyIn content reveal</li>
+      <li class="done">Canvas thermal PID ring — rAF animated, background ring, active arc (color-mapped), 60 tick marks, pulsing core glow, devicePixelRatio scaled (replaces static SVG)</li>
+      <li class="done">Footer status bar — UCIE link, PLL freq, die temp, operational status</li>
+      <li class="done">Scrollbar-width:thin + cursor:pointer polish, KPI ::before stripe (side-steps clip-path border destruction)</li>
+    </ul>
+  </div>
+
+  <div class="tl-item demo">
+    <div class="tl-time">Phase 6 — JARVIS Demo + Voice Pipeline</div>
+    <strong>Created standalone JARVIS HUD demo + integrated voice commands into NeuroMesh</strong>
+    <ul>
+      <li class="done">Built jarvis_demo.html — zero dependencies, cinematic boot, arc reactor ring, 10 HUD panels, demo simulation (click ring/Space), typed chat, B for boot replay, holographic welcome panel</li>
+      <li class="done">Created start_jarvis.bat double-click launcher</li>
+      <li class="done">Integrated voice command pipeline into dashboard/index.html using Web Speech API</li>
+      <li class="done">SpeechRecognition with webkitSpeechRecognition fallback, state machine (idle→listening→processing)</li>
+      <li class="done">10 voice commands: run simulation, run thermal, run sweep, boot, show registers, refresh, shutdown, show credits, status, help</li>
+      <li class="done">Mic button in topbar with SVG icon, listening pulse animation, processing amber glow, transcript overlay, hints bar</li>
+    </ul>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-time">Phase 7 — SSE + WebSocket Hybrid</div>
+    <strong>Replaced HTTP polling with real-time streaming endpoints</strong>
+    <ul>
+      <li class="done">Added EventBus (publish/subscribe) to serve_dashboard.py with thread-safe queue management</li>
+      <li class="done">Added GET /api/events SSE endpoint — bootstrap snapshot on connect, sim_start/seed_log/seed_result/sim_complete/sim_error events, 30s keepalive</li>
+      <li class="done">Added /ws WebSocket endpoint — RFC 6455 handshake, bidirectional: voice_transcript (browser→server), simulation events (server→browser), ping/pong</li>
+      <li class="done">run_regression() publishes events via EventBus in real-time (seed transitions, log lines)</li>
+      <li class="done">Fixed 2 dead-code bugs in serve_dashboard.py (/api/status and /api/uefi/wrapup)</li>
+      <li class="done">Read JARVIS ARCHITECTURE.md for protocol design inspiration</li>
+    </ul>
+  </div>
+
+</div>
+
+<h2>Key Features at a Glance</h2>
+
+<div class="grid3">
+  <div class="card">
+    <div class="card-header"><span class="badge badge-ux">UX</span> 10 JARVIS Patterns</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Chamfered cards, staggered entrance, phosphor dots, holographic modal, canvas PID ring, scanlines, footer bar, and more</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-new">VOICE</span> 10 Commands</div>
+    <p style="font-size:0.78rem;color:var(--muted);">SpeechRecognition API, state machine, mic pulse animation, transcript overlay</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">STREAM</span> SSE + WS</div>
+    <p style="font-size:0.78rem;color:var(--muted);">EventBus publish/subscribe, real-time simulation events, WebSocket voice bridge</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-new">UEFI</span> Boot ROM</div>
+    <p style="font-size:0.78rem;color:var(--muted);">POST, PLL Q8.8, thermal fuses, CDC yield cal, 8-step thermal wrap-up</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-new">DEMO</span> JARVIS HUD</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Standalone, zero deps, arc reactor, demo sim, chat, cinematic boot</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">API</span> 14 Endpoints</div>
+    <p style="font-size:0.78rem;color:var(--muted);">6 UEFI + SSE + WS + 6 REST (snapshot, status, thermal, yield, run, health)</p>
+  </div>
+</div>
+
+<h2>All 39 Tasks</h2>
+
+<div class="grid2">
+  <div class="card"><div class="card-header"><span class="badge badge-done">1</span> Create dashboard/index.html</div><p style="font-size:0.78rem;color:var(--muted);">KPIs, telemetry charts, physical models, simulation controls</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">2</span> Fix numpy serialization</div><p style="font-size:0.78rem;color:var(--muted);">ndarray to list in build_snapshot()</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">3</span> Test dashboard server</div><p style="font-size:0.78rem;color:var(--muted);">Snapshot + browser: zero errors</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">4</span> Fix chart containers/empty states</div><p style="font-size:0.78rem;color:var(--muted);">Heights, stacked bars, VCD guard</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">5</span> Anti-slop rebuild</div><p style="font-size:0.78rem;color:var(--muted);">SVG grain, cursor spotlight, asymmetric grid</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">6</span> Fix color classes</div><p style="font-size:0.78rem;color:var(--muted);">tc-datapath, tc-muted, tc-signal</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">7</span> Browser test (8 checks)</div><p style="font-size:0.78rem;color:var(--muted);">All passed, zero console errors</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">8</span> Code review pass</div><p style="font-size:0.78rem;color:var(--muted);">Perf, regex, dead CSS — all fixed</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">9</span> Fix cached spotlight</div><p style="font-size:0.78rem;color:var(--muted);">Removed per-frame querySelectorAll</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">10</span> Fix renderLogs regex</div><p style="font-size:0.78rem;color:var(--muted);">Grouped pipe expressions</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">11</span> Fix physical_models signatures</div><p style="font-size:0.78rem;color:var(--muted);">Both accept dashboard-style params</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">12</span> Fix serve_dashboard errors</div><p style="font-size:0.78rem;color:var(--muted);">Exception catch + JSON 404s</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">13</span> Add thermal/yield panels</div><p style="font-size:0.78rem;color:var(--muted);">Interactive THERMAL_PID + CDC_YIELD</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">14</span> Test all endpoints</div><p style="font-size:0.78rem;color:var(--muted);">Snapshot + thermal + yield pass</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">15</span> Remove redundant table</div><p style="font-size:0.78rem;color:var(--muted);">REGRESSION_LOG consolidated</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">16</span> Fix PID max freq</div><p style="font-size:0.78rem;color:var(--muted);">Dynamic from input field</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">17</span> Clone jarvis_ai</div><p style="font-size:0.78rem;color:var(--muted);">Voice + HUD repo</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">18</span> Create UEFI firmware</div><p style="font-size:0.78rem;color:var(--muted);">POST, PLL, thermal, CDC, wrap-up</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">19</span> Add UEFI endpoints</div><p style="font-size:0.78rem;color:var(--muted);">6 routes: boot, status, thermal, cdc, freq-step, wrapup</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">20</span> Add freq step slider</div><p style="font-size:0.78rem;color:var(--muted);">1000-100000 kHz in CDC panel</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">21</span> Add UEFI boot panel</div><p style="font-size:0.78rem;color:var(--muted);">POST/REGS/WRAPUP buttons</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">22</span> Wire UEFI into snapshot</div><p style="font-size:0.78rem;color:var(--muted);">uefi key in snapshot JSON</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">23</span> Fix CDC step sync</div><p style="font-size:0.78rem;color:var(--muted);">Step register synced in boot</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-done">24</span> Create/update artifact</div><p style="font-size:0.78rem;color:var(--muted);">This page</p></div>
+
+  <!-- ═══ NEW TASKS (25–39) ═══ -->
+  <div class="card"><div class="card-header"><span class="badge badge-ux">25</span> Transplant 10 JARVIS UX patterns</div><p style="font-size:0.78rem;color:var(--muted);">Clip-path, panelIn, phosphor glow, button glow, animated boot, scanlines, holo modal, canvas PID, footer, scrollbar</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-ux">26</span> Fix 4 critical UX bugs</div><p style="font-size:0.78rem;color:var(--muted);">KPI ::before stripe, body.booting opacity:0, holo async/await double-fetch, dead selectors</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-ux">27</span> Build canvas thermal PID ring</div><p style="font-size:0.78rem;color:var(--muted);">rAF animated, ticks, pulse core, devicePixelRatio, replaces SVG gauge</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-ux">28</span> Build holographic register modal</div><p style="font-size:0.78rem;color:var(--muted);">3D approach, corner brackets, chromatic aberration, scan sweep, hex grid</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-demo">29</span> Create jarvis_demo.html</div><p style="font-size:0.78rem;color:var(--muted);">Standalone JARVIS HUD, cinematic boot, arc reactor, demo sim, chat</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-demo">30</span> Fix jarvis_demo JS bugs</div><p style="font-size:0.78rem;color:var(--muted);">Missing msgDemo, unclosed setTimeout, unhandled promise rejection</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-demo">31</span> Create start_jarvis.bat launcher</div><p style="font-size:0.78rem;color:var(--muted);">Windows double-click launcher</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-demo">32</span> Read JARVIS ARCHITECTURE.md</div><p style="font-size:0.78rem;color:var(--muted);">Protocol/endpoint design analysis</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-new">33</span> Integrate voice command pipeline</div><p style="font-size:0.78rem;color:var(--muted);">SpeechRecognition + 10 voice commands + mic UI</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-new">34</span> Fix voice timer race condition</div><p style="font-size:0.78rem;color:var(--muted);">showTranscript and endSession timer collision</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-demo">35</span> Add SSE EventBus to server</div><p style="font-size:0.78rem;color:var(--muted);">Publish/subscribe with thread-safe queue management</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-demo">36</span> Add SSE endpoint /api/events</div><p style="font-size:0.78rem;color:var(--muted);">Bootstrap + simulation events + 30s keepalive</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-demo">37</span> Add WebSocket endpoint /ws</div><p style="font-size:0.78rem;color:var(--muted);">RFC 6455 handshake, voice_transcript, sim events, ping/pong</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-demo">38</span> Wire run_regression to EventBus</div><p style="font-size:0.78rem;color:var(--muted);">Real-time sim_start, seed_log, seed_result, sim_complete events</p></div>
+  <div class="card"><div class="card-header"><span class="badge badge-demo">39</span> Fix 2 dead-code bugs in serve_dashboard.py</div><p style="font-size:0.78rem;color:var(--muted);">/api/status unreachable lines, /api/uefi/wrapup orphaned thermal code</p></div>
+</div>
+
+<h2>API Endpoints (14 Total)</h2>
+
+<div class="card">
+  <table>
+    <thead><tr><th>Method</th><th>Route</th><th>Purpose</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td>GET</td><td><code>/api/snapshot</code></td><td>Full telemetry + physical models + UEFI</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>GET</td><td><code>/api/status</code></td><td>Simulation state + logs</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>POST</td><td><code>/api/thermal</code></td><td>Run thermal PID</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>POST</td><td><code>/api/yield</code></td><td>Run CDC sweep</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>POST</td><td><code>/api/run</code></td><td>Trigger UCIe regression</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>GET</td><td><code>/health</code></td><td>Health check</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>POST</td><td><code>/api/uefi/boot</code></td><td>UEFI POST + CDC + thermal</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>GET</td><td><code>/api/uefi/status</code></td><td>UEFI register dump</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>POST</td><td><code>/api/uefi/thermal</code></td><td>Thermal loop from UEFI regs</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>POST</td><td><code>/api/uefi/cdc</code></td><td>CDC sweep from UEFI regs</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>POST</td><td><code>/api/uefi/freq-step</code></td><td>Adjust PLL frequency</td><td style="color:var(--sig);">REST</td></tr>
+      <tr><td>POST</td><td><code>/api/uefi/wrapup</code></td><td>Thermal shutdown sequence</td><td style="color:var(--sig);">REST</td></tr>
+      <tr style="background:rgba(94,234,212,0.04);"><td>GET</td><td><code>/api/events</code></td><td>SSE — bootstrap + sim events in real-time</td><td style="color:var(--data);">SSE</td></tr>
+      <tr style="background:rgba(148,85,255,0.04);"><td>WS</td><td><code>/ws</code></td><td>WebSocket — voice transcripts + sim events</td><td style="color:#b794f4;">WS</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Voice Commands (Dashboard)</h2>
+
+<div class="grid2">
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "run simulation"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Triggers UCIe regression with current seed/cmd/update params</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "run thermal"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Executes thermal PID controller (reads limit/clk/load inputs)</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "run sweep"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Runs CDC yield frequency sweep via UEFI registers</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "boot"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Triggers UEFI POST with animated sequential checkpoints</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "show registers"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Opens holographic register dump modal (3D approach)</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "refresh"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Polls latest snapshot and re-renders all panels</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "shutdown"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Initiates 8-step thermal wrap-up emergency sequence</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "show credits"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Displays build credits in terminal</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "status"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Reports current system status (refreshes first)</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="badge badge-done">SAY</span> "help"</div>
+    <p style="font-size:0.78rem;color:var(--muted);">Lists all available voice commands in terminal</p>
+  </div>
+</div>
+
+<h2>Quick Commands</h2>
+
+<div class="grid2">
+  <div class="card">
+    <div class="card-header">Start Dashboard</div>
+    <code>python serve_dashboard.py --open</code><br>
+    <span style="font-size:0.72rem;color:var(--muted);">http://127.0.0.1:8765</span>
+  </div>
+  <div class="card">
+    <div class="card-header">Generate Snapshot</div>
+    <code>python serve_dashboard.py --snapshot-only</code><br>
+    <span style="font-size:0.72rem;color:var(--muted);">dashboard/data/snapshot.json</span>
+  </div>
+  <div class="card">
+    <div class="card-header">JARVIS Demo</div>
+    <code>start start_jarvis.bat</code> &nbsp;or&nbsp; <code>start jarvis_demo.html</code><br>
+    <span style="font-size:0.72rem;color:var(--muted);">Opens standalone JARVIS HUD</span>
+  </div>
+  <div class="card">
+    <div class="card-header">Plot Waveforms</div>
+    <code>python plot_ucie_waveforms.py</code><br>
+    <span style="font-size:0.72rem;color:var(--muted);">outputs/ucie_waveforms.png</span>
+  </div>
+  <div class="card">
+    <div class="card-header">View Artifact</div>
+    <code>start artifact.html</code><br>
+    <span style="font-size:0.72rem;color:var(--muted);">Opens this build record</span>
+  </div>
+  <div class="card">
+    <div class="card-header">Voice Commands (Chrome)</div>
+    <code>Click 🎤 VOICE button in dashboard topbar</code><br>
+    <span style="font-size:0.72rem;color:var(--muted);">Say "run simulation" or "help"</span>
+  </div>
+</div>
+
+<p style="text-align:center;margin-top:40px;color:var(--muted);font-size:0.72rem;">
+  NeuroMesh Observatory &middot; Build Artifact &middot; v3.0 &middot; 39 tasks &middot; 7 phases &middot; 14 endpoints &middot; July 5, 2026
+</p>
+
+</body>
+</html>

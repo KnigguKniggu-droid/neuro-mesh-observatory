@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Python artifacts
+*.so
+*.dll
+*.dylib
+
+# Dashboard data snapshots (auto-generated)
+dashboard/data/snapshot.json
+
+# Outputs (auto-generated)
+outputs/*.png
+outputs/*.json
+outputs/*.txt
+
+# Work directories (simulation artifacts)
+work/
+
+# VCD files (large simulation dumps)
+*.vcd
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temp scripts
+create_shortcuts.ps1
+
+# Batch launchers on Desktop (not tracked in repo)
+Desktop/*.bat
+Desktop/*.lnk

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[ SKILL CATALOG ] /// REV 4.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-tactical:#0A0A0A;
+    --bg-surface:#0F0F0F;
+    --text-phosphor:#EAEAEA;
+    --text-secondary:#999;
+    --text-muted:#555;
+    --accent-dawn:#5B9BD5;
+    --accent-glow:rgba(91,155,213,0.15);
+    --border-solid:#EAEAEA;
+    --border-subtle:rgba(234,234,234,0.10);
+    --pastel-tag:#1A1A1A;
+    --glass-blur:20px;
+    --cubic-editorial:cubic-bezier(0.32,0.72,0,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:16px;scroll-behavior:smooth;background:var(--bg-tactical)}
+  body{
+    background:var(--bg-tactical);color:var(--text-phosphor);
+    font-family:'JetBrains Mono',monospace;line-height:1.6;
+    overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh;
+  }
+
+  /* ═══ SCANLINES ═══ */
+  #scanlines{
+    position:fixed;inset:0;z-index:9998;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
+    opacity:0.6;
+  }
+  /* ═══ GRID OVERLAY ═══ */
+  #grid-overlay{
+    position:fixed;inset:0;z-index:1;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(234,234,234,0.03) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(234,234,234,0.03) 1px,transparent 1px);
+    background-size:80px 80px;
+  }
+
+  /* ═══ CANVAS ═══ */
+  #particles{position:fixed;inset:0;z-index:0;pointer-events:none;width:100%;height:100%}
+
+  /* ═══ HERO ═══ */
+  .hero{
+    position:relative;z-index:10;max-width:1800px;margin:0 auto;
+    padding:140px 48px 80px;
+  }
+  .hero-tag{
+    display:block;font-size:0.75rem;font-weight:700;color:var(--accent-dawn);
+    letter-spacing:0.18em;text-transform:uppercase;margin-bottom:28px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .hero h1{
+    font-family:'Geist',sans-serif;
+    font-size:clamp(2.6rem,4.5vw,5.5rem);
+    font-weight:800;line-height:0.95;letter-spacing:-0.05em;
+    color:var(--text-phosphor);max-width:1100px;
+  }
+  .hero h1 .strike .char{color:var(--accent-dawn)}
+  /* Sequential char reveal */
+  .hero h1 .char{
+    display:inline-block;opacity:0;
+    animation:charIn 0.5s var(--cubic-editorial) forwards;
+    animation-delay:calc(var(--c)*40ms + 400ms);
+  }
+  @keyframes charIn{
+    0%{opacity:0;transform:translateY(30px);filter:blur(8px)}
+    100%{opacity:1;transform:translateY(0);filter:blur(0)}
+  }
+  .hero .inline-block{
+    display:inline-block;vertical-align:middle;
+    width:clamp(40px,5vw,72px);height:clamp(24px,2.5vw,36px);
+    background:var(--accent-dawn);margin:0 8px;
+    box-shadow:0 0 40px var(--accent-glow);
+  }
+  .hero .sub{
+    display:block;font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+    color:var(--text-muted);margin-top:32px;text-transform:uppercase;
+    letter-spacing:0.12em;max-width:560px;line-height:1.8;
+  }
+  .hero .sub strong{color:var(--text-phosphor);font-weight:500}
+
+  /* ═══ FLOATING GLASS PILL ═══ */
+  .controls-wrap{
+    position:sticky;top:24px;z-index:30;display:flex;justify-content:center;
+    padding:0 20px;margin-bottom:80px;
+  }
+  .controls{
+    background:rgba(10,10,10,0.75);backdrop-filter:blur(var(--glass-blur));
+    -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--border-subtle);border-radius:9999px;
+    padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;align-items:center;
+  }
+  .controls input{
+    background:transparent;border:none;padding:10px 18px;min-width:200px;max-width:320px;
+    color:var(--text-phosphor);font-family:'JetBrains Mono',monospace;font-size:0.7rem;outline:none;
+  }
+  .controls input::placeholder{color:var(--text-muted)}
+  .chip{
+    font-family:'JetBrains Mono',monospace;font-size:0.62rem;padding:7px 16px;
+    border-radius:9999px;cursor:pointer;background:transparent;border:1px solid transparent;
+    color:var(--text-muted);transition:all 0.4s var(--cubic-editorial);
+    text-transform:uppercase;letter-spacing:0.05em;font-weight:500;
+  }
+  .chip:hover{color:var(--text-phosphor);background:rgba(255,255,255,0.04);transform:scale(1.04)}
+  .chip.on{color:var(--bg-tactical);background:var(--text-phosphor);font-weight:700}
+  .cnt{
+    font-size:0.58rem;color:var(--text-muted);margin-right:8px;white-space:nowrap;
+    font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;
+  }
+
+  /* ═══ CONTAINER ═══ */
+  .container{max-width:1800px;margin:0 auto;padding:0 48px 120px;position:relative;z-index:2}
+
+  /* ═══ STATS BAR ═══ */
+  .stats-bar{
+    display:flex;gap:48px;flex-wrap:wrap;margin-bottom:48px;padding-bottom:24px;
+    border-bottom:1px solid var(--border-subtle);
+  }
+  .stats-bar span{
+    font-family:'Geist',sans-serif;font-size:clamp(1.2rem,1rem+1.5vw,1.8rem);
+    font-weight:700;color:var(--text-phosphor);
+  }
+  .stats-bar span em{
+    font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:400;
+    color:var(--text-muted);font-style:normal;display:block;
+    text-transform:uppercase;letter-spacing:0.08em;
+  }
+
+  /* ═══ GRID ═══ */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(400px,1fr));
+    gap:1px;
+    background:var(--border-solid);
+    border:1px solid var(--border-solid);
+  }
+
+  /* ═══ DOUBLE-BEZEL CARDS + 3D MOUSE TILT ═══ */
+  .card{
+    background:var(--bg-tactical);
+    padding:6px;
+    opacity:0;transform:translateY(48px);filter:blur(4px);
+    transition:opacity 0.7s var(--cubic-editorial),transform 0.7s var(--cubic-editorial),filter 0.7s var(--cubic-editorial);
+    perspective:1200px;
+  }
+  .card.revealed{opacity:1;transform:translateY(0);filter:blur(0);will-change:transform,opacity,filter}
+  .card-inner{
+    border:1px solid var(--border-solid);
+    padding:28px 28px 24px;height:100%;
+    display:flex;flex-direction:column;gap:14px;
+    position:relative;border-radius:0;
+    background:var(--bg-tactical);
+    transition:background 0.4s var(--cubic-editorial),box-shadow 0.4s var(--cubic-editorial);
+    transform:rotateX(var(--tX,0deg)) rotateY(var(--tY,0deg));
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .card-inner:hover{
+    background:var(--bg-surface);
+    box-shadow:0 0 60px var(--accent-glow),0 20px 40px rgba(0,0,0,0.6);
+  }
+
+  /* Pre-loaded */
+  .card.preloaded .card-inner{border-color:var(--accent-dawn)}
+  .card .pre-badge{
+    position:absolute;top:12px;right:14px;
+    font-family:'JetBrains Mono',monospace;font-size:0.5rem;font-weight:700;
+    letter-spacing:0.12em;color:var(--accent-dawn);text-transform:uppercase;
+  }
+  .card .name{
+    font-family:'Geist',sans-serif;font-size:1.2rem;font-weight:700;
+    color:var(--text-phosphor);line-height:1.15;letter-spacing:-0.02em;
+    padding-right:50px;
+  }
+  .card.preloaded .name{color:var(--accent-dawn)}
+  .card .cat{
+    font-family:'JetBrains Mono',monospace;font-size:0.55rem;text-transform:uppercase;
+    letter-spacing:0.1em;color:var(--text-muted);
+    border:1px solid var(--border-subtle);padding:3px 9px;align-self:flex-start;
+  }
+  .card .desc{font-size:0.72rem;color:var(--text-secondary);line-height:1.7}
+
+  .card .gh{
+    border-left:2px solid var(--accent-dawn);padding:8px 12px;
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .card .gh .gh-label{
+    font-family:'JetBrains Mono',monospace;font-size:0.5rem;text-transform:uppercase;
+    letter-spacing:0.08em;color:var(--text-muted);
+  }
+  .card .gh a,.card .gh span.gh-builtin{
+    font-size:0.62rem;color:var(--text-phosphor);text-decoration:none;word-break:break-all;
+    font-family:'JetBrains Mono',monospace;transition:color 0.2s;
+  }
+  .card .gh a:hover{color:var(--accent-dawn)}
+
+  .card .cmd-block{
+    position:relative;cursor:pointer;transition:color 0.3s var(--cubic-editorial);
+    border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);
+    padding:10px 0;margin-top:4px;
+  }
+  .card .cmd-block:hover{color:var(--accent-dawn)}
+  .card .cmd-block .cmd-prefix{color:var(--accent-dawn);margin-right:10px;font-weight:700}
+  .card .cmd-block .cmd-text{
+    font-size:0.65rem;color:var(--text-phosphor);word-break:break-all;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .card .cmd-block .cmd-label{
+    font-family:'JetBrains Mono',monospace;font-size:0.48rem;text-transform:uppercase;
+    letter-spacing:0.1em;color:var(--text-muted);position:absolute;top:6px;right:0;
+  }
+  .card .cmd-block .cmd-label.copied{color:var(--accent-dawn)}
+
+  .card .prompt-block{
+    padding:10px 0;margin-top:2px;position:relative;cursor:pointer;
+    transition:color 0.3s var(--cubic-editorial);
+  }
+  .card .prompt-block:hover{color:var(--accent-dawn)}
+  .card .prompt-block .pr-prefix{color:var(--text-muted);margin-right:10px;font-weight:700}
+  .card .prompt-block .pr-text{
+    font-size:0.62rem;color:var(--text-secondary);word-break:break-all;
+    font-family:'JetBrains Mono',monospace;font-style:italic;
+  }
+  .card .prompt-block .pr-label{
+    font-family:'JetBrains Mono',monospace;font-size:0.48rem;text-transform:uppercase;
+    letter-spacing:0.1em;color:var(--text-muted);position:absolute;top:6px;right:0;
+  }
+  .card .prompt-block .pr-label.copied{color:var(--accent-dawn)}
+
+  .card .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+  .card .tags span{
+    font-family:'JetBrains Mono',monospace;font-size:0.55rem;padding:2px 9px;
+    color:var(--text-muted);background:var(--pastel-tag);
+    border:1px solid var(--border-subtle);text-transform:uppercase;letter-spacing:0.05em;
+  }
+
+  .empty{
+    grid-column:1/-1;text-align:center;padding:100px 20px;color:var(--text-muted);
+    font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;
+    border:1px solid var(--border-solid);background:var(--bg-tactical);
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  ::-webkit-scrollbar{width:5px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:rgba(234,234,234,0.05);border-radius:0}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(234,234,234,0.10)}
+
+  @media(max-width:800px){
+    .hero{padding:100px 20px 48px}
+    .hero h1{font-size:2rem}
+    .container{padding:0 20px 80px}
+    .grid{grid-template-columns:1fr}
+    .stats-bar{gap:24px}
+    .controls input{max-width:180px;min-width:120px}
+  }
+</style>
+</head>
+<body>
+
+<div id="scanlines"></div>
+<canvas id="particles"></canvas>
+<div id="grid-overlay"></div>
+
+<div class="hero">
+  <span class="hero-tag">[ SKILL CATALOG ] /// REV 4.1</span>
+  <h1 id="hero-h1">
+    <span class="char" style="--c:0">T</span><span class="char" style="--c:1">a</span><span class="char" style="--c:2">c</span><span class="char" style="--c:3">t</span><span class="char" style="--c:4">i</span><span class="char" style="--c:5">c</span><span class="char" style="--c:6">a</span><span class="char" style="--c:7">l</span>
+    <span class="strike"><span class="char" style="--c:9">D</span><span class="char" style="--c:10">e</span><span class="char" style="--c:11">s</span><span class="char" style="--c:12">i</span><span class="char" style="--c:13">g</span><span class="char" style="--c:14">n</span></span>
+    <span class="char" style="--c:16">S</span><span class="char" style="--c:17">y</span><span class="char" style="--c:18">s</span><span class="char" style="--c:19">t</span><span class="char" style="--c:20">e</span><span class="char" style="--c:21">m</span><span class="char" style="--c:22">s</span>
+    <span class="inline-block"></span>
+    <span class="char" style="--c:24">O</span><span class="char" style="--c:25">r</span><span class="char" style="--c:26">c</span><span class="char" style="--c:27">h</span><span class="char" style="--c:28">e</span><span class="char" style="--c:29">s</span><span class="char" style="--c:30">t</span><span class="char" style="--c:31">r</span><span class="char" style="--c:32">a</span><span class="char" style="--c:33">t</span><span class="char" style="--c:34">e</span>
+    <span class="char" style="--c:35">&amp;</span>
+    <span class="char" style="--c:37">D</span><span class="char" style="--c:38">e</span><span class="char" style="--c:39">p</span><span class="char" style="--c:40">l</span><span class="char" style="--c:41">o</span><span class="char" style="--c:42">y</span>
+  </h1>
+  <div class="sub">
+    Every formation links to its <strong>exact GitHub repository</strong>
+    with a <strong>ready-to-paste install command</strong>. No placeholders.
+    Works in PowerShell, Bash, CMD.
+  </div>
+</div>
+
+<div class="controls-wrap">
+  <div class="controls">
+    <input type="text" id="search" placeholder="Filter 72 skills..." oninput="debounceRender()">
+    <button class="chip on" onclick="setF('all',this)">ALL</button>
+    <button class="chip" onclick="setF('pre',this)">PRE-LOADED</button>
+    <button class="chip" onclick="setF('d',this)">DESIGN</button>
+    <button class="chip" onclick="setF('s',this)">SYSTEM</button>
+    <button class="chip" onclick="setF('u',this)">UTILITY</button>
+    <button class="chip" onclick="setF('v',this)">DEV</button>
+    <button class="chip" onclick="setF('c',this)">COMM</button>
+    <span class="cnt" id="cnt">72 SKILLS</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="stats-bar" id="stats"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const G="https://github.com/";
+const S=[
+// ── PRE-LOADED (10) ──
+{n:"banner-design",g:G+"nextlevelbuilder/ui-ux-pro-max-skill",c:"d",p:1,d:"Design banners for social media, ads, website heroes, creative assets, and print. 13+ styles with AI-generated visuals.",cmd:"npx skills add nextlevelbuilder/ui-ux-pro-max-skill@banner-design --yes",pr:"Load banner-design. Design a [platform] banner for [purpose] in [style] style.",t:["social","ads","print","creative","13 styles"]},
+{n:"brand",g:G+"nextlevelbuilder/ui-ux-pro-max-skill",c:"d",p:1,d:"Brand voice, visual identity, messaging frameworks, asset management, and brand consistency.",cmd:"npx skills add nextlevelbuilder/ui-ux-pro-max-skill@brand --yes",pr:"Load brand. Define brand identity for [company/product] with voice, visuals, and messaging.",t:["identity","voice","style guide","assets"]},
+{n:"design",g:G+"nextlevelbuilder/ui-ux-pro-max-skill",c:"d",p:1,d:"Comprehensive design: logos (55 styles), icons (15 styles), banners (22 styles), corporate identity (50 deliverables), social photos, HTML presentations.",cmd:"npx skills add nextlevelbuilder/ui-ux-pro-max-skill@design --yes",pr:"Load design. [action] a [deliverable] for [project] in [style] style.",t:["logos","icons","banners","CIP","social"]},
+{n:"design-system",g:G+"nextlevelbuilder/ui-ux-pro-max-skill",c:"s",p:1,d:"Token architecture, component specifications, CSS variables, spacing/typography scales, strategic slide creation.",cmd:"npx skills add nextlevelbuilder/ui-ux-pro-max-skill@design-system --yes",pr:"Load design-system. Generate a design system for [project] with 3-layer tokens and component specs.",t:["tokens","CSS","components","spacing"]},
+{n:"draft",g:"",c:"c",p:1,d:"Write emails and messages in Kartikeya's voice — no em dashes, no fragments, concise and decisive. Built into Codebuff.",cmd:"# Built into Codebuff — no install needed. Just invoke: Load the draft skill",pr:"Load draft. Write a [type] to [recipient] about [topic].",t:["email","messaging","tone","voice"]},
+{n:"find-session",g:"",c:"u",p:1,d:"Locate past Claude Code sessions by keyword and return the exact command to resume them. Built into Codebuff.",cmd:"# Built into Codebuff — no install needed. Just invoke: Load the find-session skill",pr:"Load find-session. Find the session where we [description]. Or: Resume the session about [topic].",t:["search","sessions","resume","history"]},
+{n:"pin",g:"",c:"u",p:1,d:"Create pinnable Windows .lnk shortcuts for tools, scripts, or agents with taskbar-pin steps. Built into Codebuff.",cmd:"# Built into Codebuff — no install needed. Just invoke: Load the pin skill",pr:"Load pin. Pin [script/tool] to the taskbar/Start menu.",t:["windows","shortcuts","taskbar","launcher"]},
+{n:"slides",g:G+"nextlevelbuilder/ui-ux-pro-max-skill",c:"d",p:1,d:"Strategic HTML presentations with Chart.js, design tokens, responsive layouts, and copywriting formulas.",cmd:"npx skills add nextlevelbuilder/ui-ux-pro-max-skill@slides --yes",pr:"Load slides. Create a presentation about [topic] for [audience] with [N] slides.",t:["presentations","Chart.js","HTML","slides"]},
+{n:"ui-styling",g:G+"nextlevelbuilder/ui-ux-pro-max-skill",c:"d",p:1,d:"Beautiful UIs with shadcn/ui (Radix + Tailwind), canvas visual designs, dark mode, and accessible components.",cmd:"npx skills add nextlevelbuilder/ui-ux-pro-max-skill@ui-styling --yes",pr:"Load ui-styling. Build a [component/page] using shadcn/ui + Tailwind.",t:["shadcn/ui","Tailwind","canvas","dark mode"]},
+{n:"ui-ux-pro-max",g:G+"nextlevelbuilder/ui-ux-pro-max-skill",c:"s",p:1,d:"UI/UX intelligence: 50+ styles, 161 palettes, 57 font pairings, 99 UX guidelines, 25 charts, 10 stacks.",cmd:"npx skills add nextlevelbuilder/ui-ux-pro-max-skill@ui-ux-pro-max --yes",pr:"Load ui-ux-pro-max. [plan/build/review] a [project] in [style]. Use --design-system for full recs.",t:["design-system","palettes","UX","audit"]},
+
+// ── COMMUNITY DESIGN (9) ──
+{n:"frontend-design-ui-ux",g:G+"ulpi-io/skills",c:"d",p:0,d:"Frontend design with UI/UX focus — layout, components, interaction patterns for web applications.",cmd:"npx skills add ulpi-io/skills@frontend-design-ui-ux --yes",pr:"Load frontend-design-ui-ux. Design [page/component] with [requirements].",t:["frontend","UI","UX","web"]},
+{n:"frontend-ui-ux-design",g:G+"dauquangthanh/hanoi-rainbow",c:"d",p:0,d:"Frontend UI/UX design patterns and best practices for modern web interfaces.",cmd:"npx skills add dauquangthanh/hanoi-rainbow@frontend-ui-ux-design --yes",pr:"Load frontend-ui-ux-design. Create [interface] with [style] design.",t:["frontend","UI","patterns"]},
+{n:"ui-designer",g:G+"olehsvyrydov/ai-development-team",c:"d",p:0,d:"AI-powered UI designer — generates complete interface designs from descriptions.",cmd:"npx skills add olehsvyrydov/ai-development-team@ui-designer --yes",pr:"Load ui-designer. Generate a UI design for [application/feature].",t:["AI","design","generation"]},
+{n:"design-tool-picker",g:G+"majesticlabs-dev/majestic-marketplace",c:"d",p:0,d:"Recommends the best design tool for a given task — Figma, Sketch, Penpot, etc.",cmd:"npx skills add majesticlabs-dev/majestic-marketplace@design-tool-picker --yes",pr:"Load design-tool-picker. What tool should I use for [task]?",t:["tools","Figma","recommendations"]},
+{n:"frontend",g:G+"code-yeongyu/oh-my-opencode",c:"d",p:0,d:"General frontend development — HTML, CSS, JavaScript patterns and component building.",cmd:"npx skills add code-yeongyu/oh-my-opencode@frontend --yes",pr:"Load frontend. Build [feature/component] for [project].",t:["HTML","CSS","JS","components"]},
+{n:"ckm:design",g:G+"nextlevelbuilder/ui-ux-pro-max-skill",c:"d",p:0,d:"CKM design methodology — structured design approach with component knowledge management.",cmd:"npx skills add nextlevelbuilder/ui-ux-pro-max-skill@ckm:design --yes",pr:"Load ckm:design. Apply CKM methodology to [design task].",t:["methodology","structured","CKM"]},
+{n:"llm-icon-finder",g:G+"daymade/claude-code-skills",c:"d",p:0,d:"Finds and recommends icons using LLM-powered search across icon libraries.",cmd:"npx skills add daymade/claude-code-skills@llm-icon-finder --yes",pr:"Load llm-icon-finder. Find icons for [purpose] in [style].",t:["icons","search","SVG"]},
+{n:"brand-logos",g:G+"usenotra/skills",c:"d",p:0,d:"Brand logo generation and management — create, refine, and organize brand marks.",cmd:"npx skills add usenotra/skills@brand-logos --yes",pr:"Load brand-logos. Create a logo for [brand] with [requirements].",t:["logos","brand","identity"]},
+{n:"ascii-cli-logo-banner",g:G+"partme-ai/full-stack-skills",c:"d",p:0,d:"Generate ASCII art logos and CLI banners for terminal applications and README files.",cmd:"npx skills add partme-ai/full-stack-skills@ascii-cli-logo-banner --yes",pr:"Load ascii-cli-logo-banner. Generate a CLI banner for [project name].",t:["ASCII","CLI","banner","terminal"]},
+
+// ── COMMUNITY SYSTEM (1) ──
+{n:"setup-design-system",g:G+"andrewvaughan/agent-council",c:"s",p:0,d:"Automated design system setup — initializes token architecture, component library, and documentation.",cmd:"npx skills add andrewvaughan/agent-council@setup-design-system --yes",pr:"Load setup-design-system. Set up a design system for [project/framework].",t:["setup","tokens","automation"]},
+
+// ── COMMUNITY DEV (4) ──
+{n:"test-automator",g:G+"sickn33/antigravity-awesome-skills",c:"v",p:0,d:"Automated test generation and execution — writes and runs tests for your codebase.",cmd:"npx skills add sickn33/antigravity-awesome-skills@test-automator --yes",pr:"Load test-automator. Generate tests for [module/feature].",t:["testing","automation","coverage"]},
+{n:"api-documenter",g:G+"rmyndharis/antigravity-skills",c:"v",p:0,d:"Auto-generates API documentation from code — OpenAPI/Swagger specs, endpoint docs, examples.",cmd:"npx skills add rmyndharis/antigravity-skills@api-documenter --yes",pr:"Load api-documenter. Generate API docs for [service/endpoint].",t:["API","docs","OpenAPI","Swagger"]},
+{n:"test-auto",g:G+"htlin222/dotfiles",c:"v",p:0,d:"Automated testing framework — configures and runs test suites with minimal setup.",cmd:"npx skills add htlin222/dotfiles@test-auto --yes",pr:"Load test-auto. Set up automated tests for [project].",t:["testing","automation","CI"]},
+{n:"developer-experience",g:G+"89jobrien/steve",c:"v",p:0,d:"Improves developer experience — tooling, workflows, and productivity enhancements.",cmd:"npx skills add 89jobrien/steve@developer-experience --yes",pr:"Load developer-experience. Improve the DX for [workflow/tool].",t:["DX","tooling","workflow","productivity"]},
+
+// ── COMMUNITY UTILITY (5) ──
+{n:"groove-utilities",g:G+"andreadellacorte/groove",c:"u",p:0,d:"Groove utilities bundle — memory management, logging, and git workflow helpers.",cmd:"npx skills add andreadellacorte/groove@groove-utilities-memory-log-git --yes",pr:"Load groove-utilities-memory-log-git. [memory/log/git] operation for [task].",t:["git","logging","memory","utilities"]},
+{n:"utilities",g:G+"danielmiessler/personal_ai_infrastructure",c:"u",p:0,d:"General utility functions — file ops, data processing, automation helpers.",cmd:"npx skills add danielmiessler/personal_ai_infrastructure@utilities --yes",pr:"Load utilities. Run [utility operation] on [target].",t:["files","data","automation"]},
+{n:"productivity-ai-tools",g:G+"omer-metin/skills-for-antigravity",c:"u",p:0,d:"AI-powered productivity tools — task management, scheduling, and workflow optimization.",cmd:"npx skills add omer-metin/skills-for-antigravity@productivity-ai-tools --yes",pr:"Load productivity-ai-tools. Optimize [workflow/task] with AI.",t:["productivity","AI","scheduling"]},
+{n:"utility-tools",g:G+"vikiboss/60s-skills",c:"u",p:0,d:"Quick utility tools — common operations wrapped as reusable skill commands.",cmd:"npx skills add vikiboss/60s-skills@utility-tools --yes",pr:"Load utility-tools. Run [tool] on [input].",t:["tools","quick","common ops"]},
+{n:"git-repository",g:G+"geoffjay/claude-plugins",c:"u",p:0,d:"Git repository management — clone, branch, merge, and PR workflows via natural language.",cmd:"npx skills add geoffjay/claude-plugins@git-repository --yes",pr:"Load git-repository. [clone/branch/merge] [repo] for [purpose].",t:["git","repo","PR","branch"]},
+
+// ── TASTE-SKILL (13) ──
+{n:"brandkit",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Premium brand-kit image generation — logos, color systems, typography, and brand collateral.",cmd:"npx skills add Leonxlnx/taste-skill@brandkit --yes",pr:"Load brandkit. Generate a brand kit for [company/product] with [requirements].",t:["brand","logos","identity","collateral"]},
+{n:"industrial-brutalist-ui",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Raw mechanical interfaces fusing Swiss typographic print with military terminal aesthetics.",cmd:"npx skills add Leonxlnx/taste-skill@industrial-brutalist-ui --yes",pr:"Load industrial-brutalist-ui. Build a [dashboard/interface] with tactical telemetry aesthetics.",t:["brutalism","Swiss","terminal","tactical"]},
+{n:"gpt-taste",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Elite UX/UI & Advanced GSAP Motion Engineer. Python-driven randomization, AIDA structure, gapless bento grids.",cmd:"npx skills add Leonxlnx/taste-skill@gpt-taste --yes",pr:"Load gpt-taste. Design a [page/site] with AIDA structure and GSAP scroll motion.",t:["GSAP","AIDA","bento","motion"]},
+{n:"image-to-code",g:G+"Leonxlnx/taste-skill",c:"v",p:0,d:"Image-to-code generation for Codex — deep analysis and implementation from design mockups.",cmd:"npx skills add Leonxlnx/taste-skill@image-to-code --yes",pr:"Load image-to-code. Convert this [screenshot/design] to [framework] code.",t:["codegen","mockup","implementation"]},
+{n:"imagegen-frontend-mobile",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Premium mobile app screen concept generation — one image per screen with high-end aesthetics.",cmd:"npx skills add Leonxlnx/taste-skill@imagegen-frontend-mobile --yes",pr:"Load imagegen-frontend-mobile. Generate mobile screen concepts for [app feature].",t:["mobile","screens","concepts","iOS","Android"]},
+{n:"imagegen-frontend-web",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Premium website design image generation — one image per section, enforcing high-end visual standards.",cmd:"npx skills add Leonxlnx/taste-skill@imagegen-frontend-web --yes",pr:"Load imagegen-frontend-web. Generate web design images for [page/section].",t:["web","sections","premium","images"]},
+{n:"minimalist-ui",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Clean editorial-style interfaces — warm monochrome, typographic contrast, flat bento, muted pastels.",cmd:"npx skills add Leonxlnx/taste-skill@minimalist-ui --yes",pr:"Load minimalist-ui. Build a [page/component] in clean editorial style.",t:["minimal","editorial","monochrome","clean"]},
+{n:"full-output-enforcement",g:G+"Leonxlnx/taste-skill",c:"v",p:0,d:"Overrides LLM truncation to enforce complete code generation — never delivers partial output.",cmd:"npx skills add Leonxlnx/taste-skill@full-output-enforcement --yes",pr:"Load full-output-enforcement. Generate complete [code/file] without truncation.",t:["enforcement","complete","no-truncation"]},
+{n:"redesign-existing-projects",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Audits and upgrades existing designs to high-end standards — transforms current UI to premium quality.",cmd:"npx skills add Leonxlnx/taste-skill@redesign-existing-projects --yes",pr:"Load redesign-existing-projects. Audit and upgrade the design of [project/URL].",t:["audit","upgrade","redesign","premium"]},
+{n:"high-end-visual-design",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Principal UI/UX Architect — double-bezel cards, banning Inter/Roboto, custom cubic-bezier, haptic micro-aesthetics.",cmd:"npx skills add Leonxlnx/taste-skill@high-end-visual-design --yes",pr:"Load high-end-visual-design. Design a [page/component] with $150k agency quality.",t:["premium","bezels","cubic-bezier","agency"]},
+{n:"stitch-design-taste",g:G+"Leonxlnx/taste-skill",c:"s",p:0,d:"Semantic Design System for Google Stitch — structured design token discovery and integration.",cmd:"npx skills add Leonxlnx/taste-skill@stitch-design-taste --yes",pr:"Load stitch-design-taste. Discover and integrate design tokens for [project].",t:["stitch","tokens","semantic","Google"]},
+{n:"design-taste-frontend",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Anti-generic frontend skill for landing pages and portfolios — enforces unique, non-template design outcomes.",cmd:"npx skills add Leonxlnx/taste-skill@design-taste-frontend --yes",pr:"Load design-taste-frontend. Build a unique [landing page/portfolio] with anti-generic design.",t:["anti-generic","landing","portfolio","unique"]},
+{n:"design-taste-frontend-v1",g:G+"Leonxlnx/taste-skill",c:"d",p:0,d:"Original v1 of design-taste frontend — backward-compatible anti-generic design enforcement.",cmd:"npx skills add Leonxlnx/taste-skill@design-taste-frontend-v1 --yes",pr:"Load design-taste-frontend-v1. Build a [page] with v1 anti-generic design rules.",t:["v1","legacy","anti-generic","compatible"]},
+
+// ── COMPOSIOHQ (28) ──
+{n:"artifacts-builder",g:G+"ComposioHQ/awesome-claude-skills",c:"v",p:0,d:"Suite of tools for creating elaborate multi-component HTML artifacts using React, Tailwind CSS, shadcn/ui. For complex artifacts requiring state management or routing.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@artifacts-builder --yes",pr:"Load artifacts-builder. Build a complex [artifact type] with React + Tailwind + shadcn/ui.",t:["React","Tailwind","shadcn/ui","artifacts","Vite"]},
+{n:"brand-guidelines",g:G+"ComposioHQ/awesome-claude-skills",c:"d",p:0,d:"Applies Anthropic's official brand colors and typography to artifacts. Poppins + Lora fonts, orange/blue/green accents.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@brand-guidelines --yes",pr:"Load brand-guidelines. Apply Anthropic brand styling to [artifact/presentation].",t:["branding","Anthropic","colors","typography"]},
+{n:"canvas-design",g:G+"ComposioHQ/awesome-claude-skills",c:"d",p:0,d:"Create beautiful visual art in .png and .pdf using design philosophy. Posters, abstract art, and visual compositions.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@canvas-design --yes",pr:"Load canvas-design. Create a [poster/art/visual] expressing [concept] through design.",t:["art","poster","PDF","PNG","visual"]},
+{n:"changelog-generator",g:G+"ComposioHQ/awesome-claude-skills",c:"v",p:0,d:"Automatically generates changelogs from git commits — categorizes changes, formats release notes.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@changelog-generator --yes",pr:"Load changelog-generator. Generate changelog for [repo] from [tag] to [tag].",t:["changelog","git","releases","automation"]},
+{n:"competitive-ads-extractor",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Extracts and analyzes competitive advertising content — ad copy, creatives, and targeting strategies.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@competitive-ads-extractor --yes",pr:"Load competitive-ads-extractor. Analyze competitor ads for [product/industry].",t:["ads","competitive","research","marketing"]},
+{n:"connect",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Integration connector for external services and APIs — simplifies connecting tools and platforms.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@connect --yes",pr:"Load connect. Connect [service/platform] to [other service].",t:["integration","API","connect","services"]},
+{n:"connect-apps",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Multi-app connection orchestrator — manages integrations across multiple applications simultaneously.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@connect-apps --yes",pr:"Load connect-apps. Connect [app1], [app2], and [app3] for [workflow].",t:["apps","integration","orchestration","multi"]},
+{n:"content-research-writer",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Researches topics and writes comprehensive, well-structured content with cited sources.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@content-research-writer --yes",pr:"Load content-research-writer. Research and write about [topic] for [audience].",t:["research","writing","content","citations"]},
+{n:"developer-growth-analysis",g:G+"ComposioHQ/awesome-claude-skills",c:"v",p:0,d:"Analyzes developer growth patterns and provides actionable insights for career advancement.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@developer-growth-analysis --yes",pr:"Load developer-growth-analysis. Analyze growth trajectory for [developer/profile].",t:["career","growth","analysis","insights"]},
+{n:"domain-name-brainstormer",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Generates creative domain name ideas — checks availability, suggests alternatives based on keywords.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@domain-name-brainstormer --yes",pr:"Load domain-name-brainstormer. Brainstorm domain names for [project/brand/idea].",t:["domain","naming","brainstorm","branding"]},
+{n:"file-organizer",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Intelligently organizes files and folders — categorizes, renames, and structures file systems.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@file-organizer --yes",pr:"Load file-organizer. Organize [directory/files] by [criteria].",t:["files","organization","cleanup","structure"]},
+{n:"image-enhancer",g:G+"ComposioHQ/awesome-claude-skills",c:"d",p:0,d:"Enhances and optimizes images — upscaling, color correction, background removal, and quality improvements.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@image-enhancer --yes",pr:"Load image-enhancer. Enhance [image] — [upscale/color correct/clean] for [purpose].",t:["images","enhance","upscale","optimize"]},
+{n:"internal-comms",g:G+"ComposioHQ/awesome-claude-skills",c:"c",p:0,d:"Drafts internal communications — company announcements, team updates, newsletters, and memos.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@internal-comms --yes",pr:"Load internal-comms. Draft a [memo/announcement/update] about [topic] for [audience].",t:["internal","comms","announcements","memos"]},
+{n:"invoice-organizer",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Organizes and manages invoices — extraction, categorization, and financial tracking.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@invoice-organizer --yes",pr:"Load invoice-organizer. Organize invoices for [client/project/period].",t:["invoices","finance","organization","tracking"]},
+{n:"langsmith-fetch",g:G+"ComposioHQ/awesome-claude-skills",c:"v",p:0,d:"Fetches and analyzes data from LangSmith — LLM tracing, evaluation results, and run analytics.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@langsmith-fetch --yes",pr:"Load langsmith-fetch. Fetch [traces/runs/evaluations] from LangSmith for [project].",t:["LangSmith","LLM","tracing","evaluation"]},
+{n:"lead-research-assistant",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Researches leads and prospects — company info, key contacts, and personalized outreach suggestions.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@lead-research-assistant --yes",pr:"Load lead-research-assistant. Research [company/person] for [outreach purpose].",t:["leads","research","outreach","prospecting"]},
+{n:"mcp-builder",g:G+"ComposioHQ/awesome-claude-skills",c:"v",p:0,d:"Guide for creating high-quality MCP servers enabling LLMs to interact with external services. Python (FastMCP) or Node/TypeScript.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@mcp-builder --yes",pr:"Load mcp-builder. Build an MCP server for [API/service] in [Python/TypeScript].",t:["MCP","server","integration","API","tools"]},
+{n:"meeting-insights-analyzer",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Analyzes meeting transcripts and recordings — extracts key insights, action items, and summaries.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@meeting-insights-analyzer --yes",pr:"Load meeting-insights-analyzer. Analyze [meeting transcript] for insights and action items.",t:["meetings","analysis","transcripts","insights"]},
+{n:"raffle-winner-picker",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Fair and transparent raffle winner selection — random picker with verification and announcement generation.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@raffle-winner-picker --yes",pr:"Load raffle-winner-picker. Pick a winner from [participants list] for [event/giveaway].",t:["raffle","random","winner","giveaway"]},
+{n:"skill-creator",g:G+"ComposioHQ/awesome-claude-skills",c:"v",p:0,d:"Guide for creating effective Claude Code skills — SKILL.md authoring, bundling scripts/references/assets, and packaging.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@skill-creator --yes",pr:"Load skill-creator. Create a new skill for [purpose/domain].",t:["skills","creation","SKILL.md","packaging"]},
+{n:"skill-share",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Shares and distributes Claude Code skills — packaging, publishing, and discovery of skills.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@skill-share --yes",pr:"Load skill-share. Share [skill] to [platform/community].",t:["sharing","distribution","publishing","discovery"]},
+{n:"slack-gif-creator",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Creates custom GIFs optimized for Slack — animated reactions, announcements, and team culture content.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@slack-gif-creator --yes",pr:"Load slack-gif-creator. Create a Slack GIF for [purpose/message].",t:["Slack","GIF","animated","team"]},
+{n:"tailored-resume-generator",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Generates tailored resumes for specific job descriptions — ATS-optimized with keyword matching.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@tailored-resume-generator --yes",pr:"Load tailored-resume-generator. Generate a resume tailored for [job description/role].",t:["resume","ATS","job","tailored"]},
+{n:"template-skill",g:G+"ComposioHQ/awesome-claude-skills",c:"v",p:0,d:"Starter template for creating new skills — bootstrap structure, SKILL.md template, scripts, and references directories.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@template-skill --yes",pr:"Load template-skill. Initialize a new skill from template for [purpose].",t:["template","starter","bootstrap","scaffold"]},
+{n:"theme-factory",g:G+"ComposioHQ/awesome-claude-skills",c:"d",p:0,d:"Toolkit for styling artifacts with themes. 10 pre-set themes (Ocean Depths, Sunset Boulevard, etc.) with colors/fonts.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@theme-factory --yes",pr:"Load theme-factory. Apply [theme name] to [artifact/deck/page].",t:["themes","styling","colors","fonts","10 themes"]},
+{n:"twitter-algorithm-optimizer",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Optimizes Twitter/X content strategy — timing, hashtags, thread structure, and engagement tactics.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@twitter-algorithm-optimizer --yes",pr:"Load twitter-algorithm-optimizer. Optimize [tweet/thread] for maximum engagement.",t:["Twitter","algorithm","optimization","engagement"]},
+{n:"youtube-downloader",g:G+"ComposioHQ/awesome-claude-skills",c:"u",p:0,d:"Downloads YouTube videos and extracts audio — supports multiple formats and quality options.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@youtube-downloader --yes",pr:"Load youtube-downloader. Download [video/playlist] from YouTube in [format/quality].",t:["YouTube","download","video","audio"]},
+{n:"webapp-testing",g:G+"ComposioHQ/awesome-claude-skills",c:"v",p:0,d:"Toolkit for testing local web applications using Playwright. Verifies frontend functionality, debugs UI, captures screenshots.",cmd:"npx skills add ComposioHQ/awesome-claude-skills@webapp-testing --yes",pr:"Load webapp-testing. Test [webapp/URL] for [functionality/regression].",t:["testing","Playwright","webapp","screenshots","debug"]},
+
+// ── REMOTION + VIDEODB ──
+{n:"remotion-best-practices",g:G+"remotion-dev/skills",c:"v",p:0,d:"Best practices for Remotion — video creation in React. Scaffolding, animations with interpolate/spring/Easing, Sequences, assets, captions, audio viz, 3D, effects, fonts, and rendering.",cmd:"npx skills add remotion-dev/skills@remotion-best-practices --yes",pr:"Load remotion-best-practices. Create a Remotion video with [specs/animations/effects].",t:["Remotion","React","video","animation","composition"]},
+{n:"videodb",g:G+"video-db/skills",c:"u",p:0,d:"See, Understand, Act on video and audio. Ingest files/URLs/live feeds, index and search with timestamps, timeline editing (subtitles, overlays, dubbing), and generative media.",cmd:"npx skills add video-db/skills@videodb --yes",pr:"Load videodb. [ingest/search/edit/generate] [video/audio] for [purpose].",t:["video","audio","index","search","editing","streaming"]},
+];
+
+let filter='all',renderTimer;
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('revealed');io.unobserve(e.target)}});
+},{threshold:0.06});
+
+function debounceRender(){clearTimeout(renderTimer);renderTimer=setTimeout(render,150)}
+
+function render(){
+  const q=document.getElementById('search').value.toLowerCase();
+  let f=S;
+  if(filter==='pre')f=f.filter(s=>s.p);
+  else if(filter!=='all')f=f.filter(s=>s.c===filter);
+  if(q)f=f.filter(s=>s.n.includes(q)||s.d.toLowerCase().includes(q)||s.t.some(t=>t.includes(q))||s.g.includes(q));
+
+  document.getElementById('cnt').textContent=f.length+' / '+S.length+' SKILLS';
+  io.disconnect();
+  const grid=document.getElementById('grid');
+  if(!f.length){grid.innerHTML='<div class="empty">/// NO TACTICAL MATCHES FOR \"'+h(q)+'\"</div>';updStats(f);return}
+
+  const cats={d:'DESIGN',s:'SYSTEM',u:'UTILITY',v:'DEV',c:'COMM'};
+  grid.innerHTML=f.map((s,i)=>{
+    const hasGh=!!s.g;
+    return `
+    <div class="card${s.p?' preloaded':''}" style="transition-delay:${i*35}ms">
+      <div class="card-inner">
+        ${s.p?'<span class="pre-badge">PRE-LOADED</span>':''}
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <span class="name">${h(s.n)}</span>
+          <span class="cat">${cats[s.c]||'CORE'}</span>
+        </div>
+        <div class="desc">${h(s.d)}</div>
+        <div class="gh">
+          <span class="gh-label">Install this GitHub skill into my project:</span>
+          ${hasGh?'<a href="'+s.g+'" target="_blank" rel="noopener">'+h(s.g)+'</a>':'<span class="gh-builtin">Built into Codebuff — no GitHub repo needed</span>'}
+        </div>
+        <div class="cmd-block" onclick="cpCmd(this,'${h(s.cmd).replace(/'/g,"\\'")}')">
+          <span class="cmd-prefix">❯</span><span class="cmd-text">${h(s.cmd)}</span>
+          <span class="cmd-label">COPY</span>
+        </div>
+        <div class="prompt-block" onclick="cpPr(this,'${h(s.pr).replace(/'/g,"\\'")}')">
+          <span class="pr-prefix">❯</span><span class="pr-text">${h(s.pr)}</span>
+          <span class="pr-label">COPY</span>
+        </div>
+        <div class="tags">${s.t.map(t=>'<span>'+h(t)+'</span>').join('')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('.card').forEach(c=>{c.classList.remove('revealed');io.observe(c)});
+  bindTilt();
+  updStats(f);
+}
+
+function updStats(f){
+  document.getElementById('stats').innerHTML=`
+    <span>${f.length}<em>Total</em></span>
+    <span>${f.filter(s=>s.p).length}<em>Pre-Loaded</em></span>
+    <span>${f.filter(s=>s.c==='d').length}<em>Design</em></span>
+    <span>${f.filter(s=>s.c==='s').length}<em>System</em></span>
+    <span>${f.filter(s=>s.c==='u').length}<em>Utility</em></span>
+    <span>${f.filter(s=>s.c==='v').length}<em>Dev</em></span>
+    <span>${f.filter(s=>s.c==='c').length}<em>Comm</em></span>
+  `;
+}
+
+function setF(f,el){filter=f;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');render();}
+
+function cpCmd(el,text){cp(el,text,'.cmd-label')}
+function cpPr(el,text){cp(el,text,'.pr-label')}
+function cp(el,text,labelClass){
+  navigator.clipboard.writeText(text).then(()=>{
+    const lbl=el.querySelector(labelClass),orig=lbl.textContent;
+    lbl.textContent='COPIED';lbl.classList.add('copied');el.style.color='var(--accent-dawn)';
+    setTimeout(()=>{lbl.textContent=orig;lbl.classList.remove('copied');el.style.color=''},1500);
+  }).catch(()=>{});
+}
+
+function h(s){const d=document.createElement('span');d.textContent=s;return d.innerHTML;}
+
+// ═══ 3D CARD TILT ═══
+const tiltRects=new WeakMap();
+function tiltEnter(e){
+  const card=e.currentTarget;
+  tiltRects.set(card,card.getBoundingClientRect());
+  card.style.transition='none';
+}
+function tiltMove(e){
+  const card=e.currentTarget;
+  const rect=tiltRects.get(card)||card.getBoundingClientRect();
+  const x=(e.clientX-rect.left)/rect.width-.5;
+  const y=(e.clientY-rect.top)/rect.height-.5;
+  card.style.setProperty('--tX',(-y*12)+'deg');
+  card.style.setProperty('--tY',(x*12)+'deg');
+}
+function tiltLeave(e){
+  const card=e.currentTarget;
+  card.style.transition='transform 0.5s var(--cubic-editorial)';
+  card.style.setProperty('--tX','0deg');
+  card.style.setProperty('--tY','0deg');
+  tiltRects.delete(card);
+}
+function bindTilt(){
+  document.querySelectorAll('.card-inner').forEach(ci=>{
+    ci.addEventListener('mouseenter',tiltEnter);
+    ci.addEventListener('mousemove',tiltMove);
+    ci.addEventListener('mouseleave',tiltLeave);
+  });
+}
+window.addEventListener('resize',()=>{
+  document.querySelectorAll('.card-inner').forEach(c=>tiltRects.set(c,c.getBoundingClientRect()));
+});
+
+// ═══ MOUSE PARALLAX ON HERO ═══
+const h1=document.getElementById('hero-h1'),htag=document.querySelector('.hero-tag'),
+      ibl=document.querySelector('.hero .inline-block');
+let pX=0,pY=0,tX=0,tY=0;
+document.addEventListener('mousemove',e=>{pX=(e.clientX/window.innerWidth-.5)*2;pY=(e.clientY/window.innerHeight-.5)*2});
+function parallaxLoop(){
+  tX+=(pX-tX)*0.05;tY+=(pY-tY)*0.05;
+  if(h1)h1.style.transform=`translate3d(${tX*12}px,${tY*8}px,0)`;
+  if(htag)htag.style.transform=`translate3d(${tX*4}px,${tY*3}px,0)`;
+  if(ibl)ibl.style.transform=`translate3d(${tX*18}px,${tY*10}px,0)`;
+  requestAnimationFrame(parallaxLoop);
+}
+requestAnimationFrame(parallaxLoop);
+
+// ═══ CANVAS PARTICLE NETWORK ═══
+const pCvs=document.getElementById('particles'),pCtx=pCvs.getContext('2d');
+let pW,pH,nodes=[],scrollPaused=false,scrollTO;
+function resizeParticles(){
+  pW=pCvs.width=window.innerWidth;pH=pCvs.height=window.innerHeight;
+  nodes=Array.from({length:50},()=>({x:Math.random()*pW,y:Math.random()*pH,
+    vx:(Math.random()-.5)*0.4,vy:(Math.random()-.5)*0.4,r:Math.random()*1.5+.3,a:Math.random()*.2+.04}));
+}
+resizeParticles();window.addEventListener('resize',resizeParticles);
+window.addEventListener('scroll',()=>{scrollPaused=true;clearTimeout(scrollTO);scrollTO=setTimeout(()=>scrollPaused=false,160)},{passive:true});
+let mxP=-500,myP=-500;document.addEventListener('mousemove',e=>{mxP=e.clientX;myP=e.clientY});
+function drawParticles(){
+  if(scrollPaused){requestAnimationFrame(drawParticles);return}
+  pCtx.clearRect(0,0,pW,pH);
+  for(const n of nodes){
+    n.x+=n.vx;n.y+=n.vy;
+    if(n.x<0)n.x=pW;if(n.x>pW)n.x=0;
+    if(n.y<0)n.y=pH;if(n.y>pH)n.y=0;
+    pCtx.beginPath();pCtx.arc(n.x,n.y,n.r,0,Math.PI*2);
+    pCtx.fillStyle='rgba(91,155,213,'+n.a+')';pCtx.fill();
+  }
+  // Proximity lines
+  for(let i=0;i<nodes.length;i++){
+    const a=nodes[i];
+    // Mouse proximity
+    const dm=Math.hypot(a.x-mxP,a.y-myP);
+    if(dm<100){
+      pCtx.beginPath();pCtx.moveTo(a.x,a.y);pCtx.lineTo(mxP,myP);
+      pCtx.strokeStyle='rgba(91,155,213,'+(.06*(1-dm/100))+')';
+      pCtx.lineWidth=.4;pCtx.stroke();
+    }
+    for(let j=i+1;j<nodes.length;j++){
+      const b=nodes[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<90){
+        pCtx.beginPath();pCtx.moveTo(a.x,a.y);pCtx.lineTo(b.x,b.y);
+        pCtx.strokeStyle='rgba(91,155,213,'+(.03*(1-d/90))+')';
+        pCtx.lineWidth=.3;pCtx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawParticles);
+}
+requestAnimationFrame(drawParticles);
+
+render();
+bindTilt();
+</script>
+</body>
+</html>
