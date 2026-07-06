@@ -14,6 +14,14 @@ The dashboard simulates a complete AI accelerator verification pipeline — from
 
 ---
 
+## 📸 Live Dashboard Screenshot
+
+![NeuroMesh Observatory Dashboard](assets/dashboard_full.png)
+
+> *CRT Phosphor Oscilloscope UI with live 10fps chart sweep, 8 KPI tiles, IR drop heatmap, thermal PID ring gauge, UEFI boot ROM, and voice command pipeline — all in neon green/blue/red.*
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
