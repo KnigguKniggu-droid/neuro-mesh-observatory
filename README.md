@@ -14,11 +14,15 @@ The dashboard simulates a complete AI accelerator verification pipeline — from
 
 ---
 
-## 📸 Live Dashboard Screenshot
+## 📸 Live Simulation Visualizations
 
-![NeuroMesh Observatory Dashboard](assets/dashboard_full.png)
+*Every panel below is rendered from the real output of the real simulation models on a single run. The data is the project's own mock telemetry; the visualization code and results are genuine. Generate them yourself with `python viz/build.py` (needs matplotlib), or double-click the dashboard to see them animate live.*
 
-> *CRT Phosphor Oscilloscope UI with live 10fps chart sweep, 8 KPI tiles, IR drop heatmap, thermal PID ring gauge, UEFI boot ROM, and voice command pipeline — all in neon green/blue/red.*
+### KPI Summary + Terminal Output
+
+![KPI Tiles](viz/kpi_tiles.png)
+
+![Terminal Output](viz/terminal.png)
 
 ---
 
@@ -116,6 +120,8 @@ The dashboard is a single HTML file (`dashboard/index.html`) with zero framework
 
 ### 2. Credit & Link Activity Chart (Live Oscilloscope)
 
+![Credit & Link Activity](viz/credits_chart.png)
+
 **Two overlapping traces** swept at 10fps across 300 telemetry points:
 
 - **CREDITS** (🟢 green line): UCIe available credit pool — drops when pooled memory transactions are in-flight. Simulates credit-based flow control between chiplets.
@@ -124,6 +130,8 @@ The dashboard is a single HTML file (`dashboard/index.html`) with zero framework
 > **What it simulates**: UCIe credit arbitration — each remote memory request consumes 1 credit, released on response. Backpressure occurs when credits hit 0.
 
 ### 3. Stall / Collision Stack Chart
+
+![Stall / Collision Stack](viz/stalls_chart.png)
 
 **Stacked bar chart** showing three categories of fabric congestion:
 
@@ -135,6 +143,8 @@ The dashboard is a single HTML file (`dashboard/index.html`) with zero framework
 
 ### 4. Clock Domains Chart
 
+![Clock Domains](viz/clocks_chart.png)
+
 **Two independent jittered clock domains** on the same timeline:
 
 - **COMPUTE_CLK** (🟢 green): Main compute clock — toggles at ~1.5 GHz effective
@@ -142,9 +152,11 @@ The dashboard is a single HTML file (`dashboard/index.html`) with zero framework
 
 > **What it simulates**: CDC (Clock Domain Crossing) behavior. The two clocks are intentionally desynchronized with randomized jitter to stress-test CDC FIFOs and metastability hardening.
 
-### 5. IR Drop Map (4×4 Heatmap)
+### 5. IR Drop Map (4x4 Heatmap)
 
-A **4×4 grid** representing voltage degradation across the chiplet mesh power grid. Each cell shows the actual voltage at that tile location.
+![IR Drop Map](viz/ir_drop.png)
+
+A **4x4 grid** representing voltage degradation across the chiplet mesh power grid. Each cell shows the actual voltage at that tile location.
 
 - **Bright green** → near nominal voltage (0.750V)
 - **Darker green** → voltage droop (down to ~0.749V under load)
@@ -164,6 +176,8 @@ A **firmware-level emulator** with:
 
 ### 7. Thermal PID Controller
 
+![Thermal PID](viz/thermal_pid.png)
+
 **Animated canvas ring gauge** showing real-time thermal throttling:
 
 - 🟢 **STABLE** (green ring): Normal operation, frequency at target
@@ -175,6 +189,8 @@ Controls: **LIMIT C** (thermal limit in °C), **CLK GHz** (target frequency), **
 > **What it simulates**: Predictive thermal management with environmental modifiers. Ambient temperature penalty, workload-driven temp boost, and duration-aware ramp factor. The PID loop runs in continuous animation via `requestAnimationFrame`.
 
 ### 8. CDC Yield Sweep
+
+![CDC Yield Sweep](viz/cdc_yield.png)
 
 **Monte Carlo statistical analysis** chart with blue fill:
 
